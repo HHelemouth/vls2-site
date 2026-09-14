@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import type { CompositionSet, Joueuse, Match } from '../types'
+import { useEffect, useState } from 'react'
+import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
 import CourtDiagram from './CourtDiagram'
+import { affectationsVides } from '../utils'
 
 export default function CompositionPage({
   matches,
@@ -19,6 +20,40 @@ export default function CompositionPage({
   const composition = compositions.find(
     (c) => c.matchId === matchId && c.setNumero === setNumero,
   )
+
+  const [enÉdition, setEnÉdition] = useState(false)
+  const [brouillon, setBrouillon] = useState<AffectationSet[]>(
+    composition?.affectations ?? affectationsVides(),
+  )
+  const [copié, setCopié] = useState(false)
+
+  // Repart d'une composition propre à chaque changement de match/set.
+  useEffect(() => {
+    setBrouillon(composition?.affectations ?? affectationsVides())
+    setEnÉdition(false)
+    setCopié(false)
+  }, [matchId, setNumero])
+
+  function modifierAffectation(
+    position: PositionTerrain,
+    champ: 'joueuseId' | 'posteJoue',
+    valeur: string,
+  ) {
+    setBrouillon((b) =>
+      b.map((a) => (a.position === position ? { ...a, [champ]: valeur } : a)),
+    )
+  }
+
+  function copierJSON() {
+    const objet: CompositionSet = {
+      matchId,
+      setNumero,
+      affectations: brouillon,
+    }
+    navigator.clipboard.writeText(JSON.stringify(objet, null, 2))
+    setCopié(true)
+    setTimeout(() => setCopié(false), 1800)
+  }
 
   return (
     <div>
@@ -49,14 +84,46 @@ export default function CompositionPage({
             </option>
           ))}
         </select>
+
+        <button
+          className="btn-edit btn-edit-inline"
+          onClick={() => setEnÉdition((v) => !v)}
+        >
+          {enÉdition ? 'Terminé' : 'Modifier'}
+        </button>
       </div>
 
-      <CourtDiagram composition={composition} joueuses={joueuses} />
-      {composition && (
-        <p className="legend">
-          <span className="dot" /> poste joué différent du poste clé de la
-          saison
-        </p>
+      {enÉdition ? (
+        <>
+          <CourtDiagram
+            composition={{ matchId, setNumero, affectations: brouillon }}
+            joueuses={joueuses}
+            editable
+            onChangeAffectation={modifierAffectation}
+          />
+          <p className="legend">Clique sur chaque poste pour choisir la joueuse et son poste joué.</p>
+          <div className="json-output">
+            <div className="json-output-header">
+              <span>JSON à coller dans compositions.json</span>
+              <button className="btn-copy" onClick={copierJSON}>
+                {copié ? 'Copié !' : 'Copier'}
+              </button>
+            </div>
+            <pre>
+              {JSON.stringify({ matchId, setNumero, affectations: brouillon }, null, 2)}
+            </pre>
+          </div>
+        </>
+      ) : (
+        <>
+          <CourtDiagram composition={composition} joueuses={joueuses} />
+          {composition && (
+            <p className="legend">
+              <span className="dot" /> poste joué différent du poste clé de
+              la saison
+            </p>
+          )}
+        </>
       )}
     </div>
   )

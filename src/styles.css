@@ -246,6 +246,35 @@ nav.tabs button.active {
   opacity: 0.92;
 }
 
+.zone-editable {
+  gap: 0.4rem;
+}
+
+.zone-select {
+  background: var(--bg);
+  border: 1px solid var(--panel-line);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.zone-select:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.btn-edit-inline {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.btn-edit-right {
+  margin-left: auto;
+}
+
 .legend {
   text-align: center;
   color: var(--text-muted);

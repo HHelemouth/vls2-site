@@ -4,37 +4,10 @@ import type {
   CompositionSet,
   Joueuse,
   Match,
-  Poste,
   PositionTerrain,
   SetScore,
 } from '../types'
-
-const POSTES: Poste[] = [
-  'Passeur',
-  'Pointu',
-  'Central',
-  'Réceptionneur-Attaquant',
-  'Libero',
-]
-
-const POSITIONS: PositionTerrain[] = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']
-
-function slugify(texte: string) {
-  return texte
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-}
-
-function affectationsVides(): AffectationSet[] {
-  return POSITIONS.map((position) => ({
-    position,
-    joueuseId: '',
-    posteJoue: 'Passeur' as Poste,
-  }))
-}
+import { POSITIONS, POSTES, affectationsVides, slugify } from '../utils'
 
 export default function EditMatchPage({
   match,

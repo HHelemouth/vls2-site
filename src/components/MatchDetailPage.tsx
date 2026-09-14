@@ -1,8 +1,113 @@
-import type { CompositionSet, Joueuse, Match } from '../types'
+import { useState } from 'react'
+import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
 import CourtDiagram from './CourtDiagram'
+import { affectationsVides } from '../utils'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
+}
+
+function SetBlock({
+  match,
+  setNumero,
+  pointsVLS,
+  pointsAdv,
+  composition,
+  joueuses,
+}: {
+  match: Match
+  setNumero: number
+  pointsVLS: number
+  pointsAdv: number
+  composition: CompositionSet | undefined
+  joueuses: Joueuse[]
+}) {
+  const [enÉdition, setEnÉdition] = useState(false)
+  const [brouillon, setBrouillon] = useState<AffectationSet[]>(
+    composition?.affectations ?? affectationsVides(),
+  )
+  const [copié, setCopié] = useState(false)
+
+  const changements = (enÉdition ? brouillon : composition?.affectations ?? []).filter(
+    (a) => {
+      const j = joueuses.find((j) => j.id === a.joueuseId)
+      return j && j.posteCle !== a.posteJoue
+    },
+  ).length
+
+  function modifierAffectation(
+    position: PositionTerrain,
+    champ: 'joueuseId' | 'posteJoue',
+    valeur: string,
+  ) {
+    setBrouillon((b) =>
+      b.map((a) => (a.position === position ? { ...a, [champ]: valeur } : a)),
+    )
+  }
+
+  function copierJSON() {
+    const objet: CompositionSet = {
+      matchId: match.id,
+      setNumero,
+      affectations: brouillon,
+    }
+    navigator.clipboard.writeText(JSON.stringify(objet, null, 2))
+    setCopié(true)
+    setTimeout(() => setCopié(false), 1800)
+  }
+
+  return (
+    <div className="set-block">
+      <div className="set-block-header">
+        <h3>Set {setNumero}</h3>
+        <span className={`set-pill ${setGagné(pointsVLS, pointsAdv) ? 'win' : 'loss'}`}>
+          {pointsVLS}–{pointsAdv}
+        </span>
+        {changements > 0 && (
+          <span className="changement-tag">
+            {changements} changement{changements > 1 ? 's' : ''} de poste
+          </span>
+        )}
+        <button
+          className="btn-edit btn-edit-inline btn-edit-right"
+          onClick={() => {
+            if (!enÉdition) setBrouillon(composition?.affectations ?? affectationsVides())
+            setEnÉdition((v) => !v)
+          }}
+        >
+          {enÉdition ? 'Terminé' : 'Modifier'}
+        </button>
+      </div>
+
+      {enÉdition ? (
+        <>
+          <CourtDiagram
+            composition={{ matchId: match.id, setNumero, affectations: brouillon }}
+            joueuses={joueuses}
+            editable
+            onChangeAffectation={modifierAffectation}
+          />
+          <div className="json-output">
+            <div className="json-output-header">
+              <span>JSON à coller dans compositions.json</span>
+              <button className="btn-copy" onClick={copierJSON}>
+                {copié ? 'Copié !' : 'Copier'}
+              </button>
+            </div>
+            <pre>
+              {JSON.stringify(
+                { matchId: match.id, setNumero, affectations: brouillon },
+                null,
+                2,
+              )}
+            </pre>
+          </div>
+        </>
+      ) : (
+        <CourtDiagram composition={composition} joueuses={joueuses} />
+      )}
+    </div>
+  )
 }
 
 export default function MatchDetailPage({
@@ -49,42 +154,22 @@ export default function MatchDetailPage({
       </div>
 
       <button className="btn-edit" onClick={onEdit}>
-        Modifier ce match
+        Modifier le score ou ajouter/retirer un set
       </button>
 
-      {match.sets.map((set) => {
-        const composition = compositions.find(
-          (c) => c.matchId === match.id && c.setNumero === set.numero,
-        )
-        const changements = composition
-          ? composition.affectations.filter((a) => {
-              const j = joueuses.find((j) => j.id === a.joueuseId)
-              return j && j.posteCle !== a.posteJoue
-            }).length
-          : 0
-
-        return (
-          <div className="set-block" key={set.numero}>
-            <div className="set-block-header">
-              <h3>Set {set.numero}</h3>
-              <span
-                className={`set-pill ${
-                  setGagné(set.pointsVLS, set.pointsAdv) ? 'win' : 'loss'
-                }`}
-              >
-                {set.pointsVLS}–{set.pointsAdv}
-              </span>
-              {changements > 0 && (
-                <span className="changement-tag">
-                  {changements} changement{changements > 1 ? 's' : ''} de
-                  poste
-                </span>
-              )}
-            </div>
-            <CourtDiagram composition={composition} joueuses={joueuses} />
-          </div>
-        )
-      })}
+      {match.sets.map((set) => (
+        <SetBlock
+          key={set.numero}
+          match={match}
+          setNumero={set.numero}
+          pointsVLS={set.pointsVLS}
+          pointsAdv={set.pointsAdv}
+          composition={compositions.find(
+            (c) => c.matchId === match.id && c.setNumero === set.numero,
+          )}
+          joueuses={joueuses}
+        />
+      ))}
 
       <p className="legend">
         <span className="dot" /> poste joué différent du poste clé de la
