@@ -1,8 +1,46 @@
 [
-  { "id": "j1", "nom": "Camille", "numero": 4, "posteCle": "Passeur" },
-  { "id": "j2", "nom": "Léa", "numero": 7, "posteCle": "Pointu" },
-  { "id": "j3", "nom": "Nora", "numero": 9, "posteCle": "Central" },
-  { "id": "j4", "nom": "Inès", "numero": 11, "posteCle": "Réceptionneur-Attaquant" },
-  { "id": "j5", "nom": "Manon", "numero": 3, "posteCle": "Libero" },
-  { "id": "j6", "nom": "Chloé", "numero": 8, "posteCle": "Central" }
+  {
+    "id": "j1",
+    "nom": "Camille",
+    "numero": 4,
+    "posteCle": "Passeur",
+    "autresPostes": ["Réceptionneur-Attaquant"],
+    "numeroLicence": "DEMO-000401"
+  },
+  {
+    "id": "j2",
+    "nom": "Léa",
+    "numero": 7,
+    "posteCle": "Pointu",
+    "numeroLicence": "DEMO-000702"
+  },
+  {
+    "id": "j3",
+    "nom": "Nora",
+    "numero": 9,
+    "posteCle": "Central",
+    "numeroLicence": "DEMO-000903"
+  },
+  {
+    "id": "j4",
+    "nom": "Inès",
+    "numero": 11,
+    "posteCle": "Réceptionneur-Attaquant",
+    "autresPostes": ["Libero"],
+    "numeroLicence": "DEMO-001104"
+  },
+  {
+    "id": "j5",
+    "nom": "Manon",
+    "numero": 3,
+    "posteCle": "Libero",
+    "numeroLicence": "DEMO-000305"
+  },
+  {
+    "id": "j6",
+    "nom": "Chloé",
+    "numero": 8,
+    "posteCle": "Central",
+    "numeroLicence": "DEMO-000806"
+  }
 ]

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import ResultsPage from './components/ResultsPage'
-import CompositionPage from './components/CompositionPage'
+import TeamPage from './components/TeamPage'
 import StatsPage from './components/StatsPage'
 import MatchDetailPage from './components/MatchDetailPage'
 import EditMatchPage from './components/EditMatchPage'
@@ -13,7 +13,7 @@ const joueuses = joueusesData as Joueuse[]
 const matches = matchesData as Match[]
 const compositions = compositionsData as CompositionSet[]
 
-type Onglet = 'resultats' | 'compositions' | 'stats'
+type Onglet = 'resultats' | 'equipe' | 'stats'
 type Vue =
   | { type: 'liste' }
   | { type: 'match'; matchId: string }
@@ -59,10 +59,10 @@ export default function App() {
           Résultats
         </button>
         <button
-          className={onglet === 'compositions' && vue.type === 'liste' ? 'active' : ''}
-          onClick={() => allerAuxOnglets('compositions')}
+          className={onglet === 'equipe' && vue.type === 'liste' ? 'active' : ''}
+          onClick={() => allerAuxOnglets('equipe')}
         >
-          Compositions
+          Équipe
         </button>
         <button
           className={onglet === 'stats' && vue.type === 'liste' ? 'active' : ''}
@@ -109,12 +109,8 @@ export default function App() {
           onSelect={(matchId) => setVue({ type: 'match', matchId })}
         />
       )}
-      {vue.type === 'liste' && onglet === 'compositions' && (
-        <CompositionPage
-          matches={matches}
-          joueuses={joueuses}
-          compositions={compositions}
-        />
+      {vue.type === 'liste' && onglet === 'equipe' && (
+        <TeamPage joueuses={joueuses} />
       )}
       {vue.type === 'liste' && onglet === 'stats' && (
         <StatsPage

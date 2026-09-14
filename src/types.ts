@@ -11,7 +11,9 @@ export interface Joueuse {
   id: string
   nom: string
   numero: number
-  posteCle: Poste // poste attribué pour la saison
+  posteCle: Poste // poste principal attribué pour la saison
+  autresPostes?: Poste[] // autres postes de prédilection, s'il y en a
+  numeroLicence?: string // n° de licence FFvolley, optionnel
 }
 
 export interface SetScore {

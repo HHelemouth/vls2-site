@@ -571,6 +571,49 @@ table.postes-table th {
   max-height: 260px;
 }
 
+/* Équipe */
+
+.team-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.toggle-licence {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.cell-numero {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.cell-licence {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.poste-principal {
+  font-weight: 600;
+}
+
+.poste-secondaire {
+  display: inline-block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.poste-secondaire::before {
+  content: '+ ';
+}
+
 footer.note {
   color: var(--text-muted);
   font-size: 0.8rem;
