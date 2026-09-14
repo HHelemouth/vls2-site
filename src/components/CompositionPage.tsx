@@ -1,19 +1,6 @@
-import { useMemo, useState } from 'react'
-import type {
-  CompositionSet,
-  Joueuse,
-  Match,
-  PositionTerrain,
-} from '../types'
-
-const ORDRE_TERRAIN: { position: PositionTerrain; ligne: 'front' | 'back' }[] = [
-  { position: 'P4', ligne: 'front' },
-  { position: 'P3', ligne: 'front' },
-  { position: 'P2', ligne: 'front' },
-  { position: 'P5', ligne: 'back' },
-  { position: 'P6', ligne: 'back' },
-  { position: 'P1', ligne: 'back' },
-]
+import { useState } from 'react'
+import type { CompositionSet, Joueuse, Match } from '../types'
+import CourtDiagram from './CourtDiagram'
 
 export default function CompositionPage({
   matches,
@@ -32,12 +19,6 @@ export default function CompositionPage({
   const composition = compositions.find(
     (c) => c.matchId === matchId && c.setNumero === setNumero,
   )
-
-  const joueuseParId = useMemo(() => {
-    const map = new Map<string, Joueuse>()
-    joueuses.forEach((j) => map.set(j.id, j))
-    return map
-  }, [joueuses])
 
   return (
     <div>
@@ -70,40 +51,11 @@ export default function CompositionPage({
         </select>
       </div>
 
-      {composition ? (
-        <>
-          <div className="court">
-            {ORDRE_TERRAIN.map(({ position, ligne }) => {
-              const affectation = composition.affectations.find(
-                (a) => a.position === position,
-              )
-              const joueuse = affectation
-                ? joueuseParId.get(affectation.joueuseId)
-                : undefined
-              const changement =
-                joueuse && affectation && joueuse.posteCle !== affectation.posteJoue
-
-              return (
-                <div className={`zone ${ligne}`} key={position}>
-                  <span className="pos-label">{position}</span>
-                  <div>
-                    <div className="joueuse">{joueuse?.nom ?? '—'}</div>
-                    <div className={`poste ${changement ? 'changed' : ''}`}>
-                      {affectation?.posteJoue ?? ''}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <p className="legend">
-            <span className="dot" /> poste joué différent du poste clé de la
-            saison
-          </p>
-        </>
-      ) : (
-        <p style={{ color: 'var(--text-muted)' }}>
-          Pas de composition saisie pour ce set.
+      <CourtDiagram composition={composition} joueuses={joueuses} />
+      {composition && (
+        <p className="legend">
+          <span className="dot" /> poste joué différent du poste clé de la
+          saison
         </p>
       )}
     </div>

@@ -312,6 +312,236 @@ table.postes-table th {
   letter-spacing: 0.03em;
 }
 
+/* Carte cliquable */
+
+.match-card.cliquable {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.match-card.cliquable:hover {
+  border-color: var(--gold);
+}
+
+.match-card.cliquable:active {
+  transform: scale(0.997);
+}
+
+/* Détail d'un match */
+
+.lien-retour {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.lien-retour:hover {
+  color: var(--gold);
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.detail-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin: 0.25rem 0;
+}
+
+.issue-large {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid currentColor;
+}
+
+.btn-edit,
+.btn-add,
+.btn-remove,
+.btn-copy {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+}
+
+.btn-edit {
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  margin-bottom: 2rem;
+}
+
+.set-block {
+  border-top: 1px solid var(--panel-line);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.set-block-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.set-block-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.changement-tag {
+  color: var(--gold);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+/* Formulaire d'édition */
+
+.edit-section {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.edit-section h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin-top: 0;
+}
+
+.edit-section h4 {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.edit-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.edit-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.edit-row label.grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.edit-row input,
+.edit-row select {
+  background: var(--bg);
+  border: 1px solid var(--panel-line);
+  color: var(--text);
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  font-family: var(--font-body);
+}
+
+.set-score-row {
+  align-items: center;
+}
+
+.set-num {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  min-width: 3.5rem;
+}
+
+.btn-remove {
+  background: none;
+  border: 1px solid var(--loss);
+  color: var(--loss);
+}
+
+.btn-add {
+  background: none;
+  border: 1px dashed var(--panel-line);
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.btn-add:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.compo-edit-block {
+  border-top: 1px solid var(--panel-line);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.compo-row {
+  align-items: center;
+}
+
+.pos-tag {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  min-width: 2.5rem;
+}
+
+.json-output {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--panel-line);
+  padding-top: 1rem;
+}
+
+.json-output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.btn-copy {
+  background: none;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.json-output pre {
+  background: var(--bg);
+  border: 1px solid var(--panel-line);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  overflow-x: auto;
+  max-height: 260px;
+}
+
 footer.note {
   color: var(--text-muted);
   font-size: 0.8rem;

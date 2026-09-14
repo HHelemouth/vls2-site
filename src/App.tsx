@@ -2,6 +2,8 @@ import { useState } from 'react'
 import ResultsPage from './components/ResultsPage'
 import CompositionPage from './components/CompositionPage'
 import StatsPage from './components/StatsPage'
+import MatchDetailPage from './components/MatchDetailPage'
+import EditMatchPage from './components/EditMatchPage'
 import joueusesData from './data/joueuses.json'
 import matchesData from './data/matches.json'
 import compositionsData from './data/compositions.json'
@@ -12,10 +14,27 @@ const matches = matchesData as Match[]
 const compositions = compositionsData as CompositionSet[]
 
 type Onglet = 'resultats' | 'compositions' | 'stats'
+type Vue =
+  | { type: 'liste' }
+  | { type: 'match'; matchId: string }
+  | { type: 'edition'; matchId?: string }
 
 export default function App() {
   const [onglet, setOnglet] = useState<Onglet>('resultats')
+  const [vue, setVue] = useState<Vue>({ type: 'liste' })
   const contientDemo = matches.some((m) => m.demo)
+
+  function allerAuxOnglets(nom: Onglet) {
+    setOnglet(nom)
+    setVue({ type: 'liste' })
+  }
+
+  const matchSélectionné =
+    vue.type === 'match' ? matches.find((m) => m.id === vue.matchId) : undefined
+  const matchEnÉdition =
+    vue.type === 'edition' && vue.matchId
+      ? matches.find((m) => m.id === vue.matchId)
+      : undefined
 
   return (
     <div className="shell">
@@ -34,34 +53,70 @@ export default function App() {
 
       <nav className="tabs">
         <button
-          className={onglet === 'resultats' ? 'active' : ''}
-          onClick={() => setOnglet('resultats')}
+          className={onglet === 'resultats' && vue.type === 'liste' ? 'active' : ''}
+          onClick={() => allerAuxOnglets('resultats')}
         >
           Résultats
         </button>
         <button
-          className={onglet === 'compositions' ? 'active' : ''}
-          onClick={() => setOnglet('compositions')}
+          className={onglet === 'compositions' && vue.type === 'liste' ? 'active' : ''}
+          onClick={() => allerAuxOnglets('compositions')}
         >
           Compositions
         </button>
         <button
-          className={onglet === 'stats' ? 'active' : ''}
-          onClick={() => setOnglet('stats')}
+          className={onglet === 'stats' && vue.type === 'liste' ? 'active' : ''}
+          onClick={() => allerAuxOnglets('stats')}
         >
           Stats
         </button>
+        <button
+          className={vue.type === 'edition' && !vue.matchId ? 'active' : ''}
+          onClick={() => setVue({ type: 'edition' })}
+        >
+          + Nouveau match
+        </button>
       </nav>
 
-      {onglet === 'resultats' && <ResultsPage matches={matches} />}
-      {onglet === 'compositions' && (
+      {vue.type === 'match' && matchSélectionné && (
+        <MatchDetailPage
+          match={matchSélectionné}
+          joueuses={joueuses}
+          compositions={compositions}
+          onBack={() => setVue({ type: 'liste' })}
+          onEdit={() => setVue({ type: 'edition', matchId: matchSélectionné.id })}
+        />
+      )}
+
+      {vue.type === 'edition' && (
+        <EditMatchPage
+          match={matchEnÉdition}
+          compositions={compositions}
+          joueuses={joueuses}
+          onBack={() =>
+            setVue(
+              matchEnÉdition
+                ? { type: 'match', matchId: matchEnÉdition.id }
+                : { type: 'liste' },
+            )
+          }
+        />
+      )}
+
+      {vue.type === 'liste' && onglet === 'resultats' && (
+        <ResultsPage
+          matches={matches}
+          onSelect={(matchId) => setVue({ type: 'match', matchId })}
+        />
+      )}
+      {vue.type === 'liste' && onglet === 'compositions' && (
         <CompositionPage
           matches={matches}
           joueuses={joueuses}
           compositions={compositions}
         />
       )}
-      {onglet === 'stats' && (
+      {vue.type === 'liste' && onglet === 'stats' && (
         <StatsPage
           matches={matches}
           joueuses={joueuses}

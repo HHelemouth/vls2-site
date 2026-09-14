@@ -9,7 +9,13 @@ function matchGagne(match: Match) {
   return gagnes > match.sets.length - gagnes
 }
 
-export default function ResultsPage({ matches }: { matches: Match[] }) {
+export default function ResultsPage({
+  matches,
+  onSelect,
+}: {
+  matches: Match[]
+  onSelect: (matchId: string) => void
+}) {
   const triés = [...matches].sort((a, b) => (a.date < b.date ? 1 : -1))
 
   return (
@@ -17,7 +23,16 @@ export default function ResultsPage({ matches }: { matches: Match[] }) {
       {triés.map((match) => {
         const gagné = matchGagne(match)
         return (
-          <div className="match-card" key={match.id}>
+          <div
+            className="match-card cliquable"
+            key={match.id}
+            onClick={() => onSelect(match.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onSelect(match.id)
+            }}
+          >
             <div className="infos">
               <div className="date">
                 {new Date(match.date).toLocaleDateString('fr-FR', {
