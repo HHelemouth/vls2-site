@@ -1,0 +1,38 @@
+[
+  {
+    "matchId": "demo-1",
+    "setNumero": 1,
+    "affectations": [
+      { "position": "P1", "joueuseId": "j2", "posteJoue": "Pointu" },
+      { "position": "P2", "joueuseId": "j1", "posteJoue": "Passeur" },
+      { "position": "P3", "joueuseId": "j3", "posteJoue": "Central" },
+      { "position": "P4", "joueuseId": "j4", "posteJoue": "Réceptionneur-Attaquant" },
+      { "position": "P5", "joueuseId": "j6", "posteJoue": "Central" },
+      { "position": "P6", "joueuseId": "j5", "posteJoue": "Libero" }
+    ]
+  },
+  {
+    "matchId": "demo-1",
+    "setNumero": 2,
+    "affectations": [
+      { "position": "P1", "joueuseId": "j1", "posteJoue": "Réceptionneur-Attaquant" },
+      { "position": "P2", "joueuseId": "j2", "posteJoue": "Pointu" },
+      { "position": "P3", "joueuseId": "j4", "posteJoue": "Réceptionneur-Attaquant" },
+      { "position": "P4", "joueuseId": "j3", "posteJoue": "Central" },
+      { "position": "P5", "joueuseId": "j5", "posteJoue": "Libero" },
+      { "position": "P6", "joueuseId": "j6", "posteJoue": "Central" }
+    ]
+  },
+  {
+    "matchId": "demo-1",
+    "setNumero": 3,
+    "affectations": [
+      { "position": "P1", "joueuseId": "j3", "posteJoue": "Central" },
+      { "position": "P2", "joueuseId": "j1", "posteJoue": "Passeur" },
+      { "position": "P3", "joueuseId": "j2", "posteJoue": "Pointu" },
+      { "position": "P4", "joueuseId": "j6", "posteJoue": "Central" },
+      { "position": "P5", "joueuseId": "j4", "posteJoue": "Réceptionneur-Attaquant" },
+      { "position": "P6", "joueuseId": "j5", "posteJoue": "Libero" }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "demo-1",
+    "date": "2026-09-06",
+    "adversaire": "Match de démonstration — Amical",
+    "domicile": true,
+    "lieu": "Salle de la Martelière",
+    "demo": true,
+    "sets": [
+      { "numero": 1, "pointsVLS": 25, "pointsAdv": 18 },
+      { "numero": 2, "pointsVLS": 21, "pointsAdv": 25 },
+      { "numero": 3, "pointsVLS": 25, "pointsAdv": 20 }
+    ]
+  },
+  {
+    "id": "demo-2",
+    "date": "2026-08-30",
+    "adversaire": "Match de démonstration — Tournoi de rentrée",
+    "domicile": false,
+    "lieu": "Gymnase Grand Carcouet",
+    "demo": true,
+    "sets": [
+      { "numero": 1, "pointsVLS": 22, "pointsAdv": 25 },
+      { "numero": 2, "pointsVLS": 25, "pointsAdv": 23 },
+      { "numero": 3, "pointsVLS": 19, "pointsAdv": 25 }
+    ]
+  }
+]
