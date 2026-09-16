@@ -8,17 +8,20 @@ import type {
   SetScore,
 } from '../types'
 import { POSITIONS, POSTES, affectationsVides, slugify } from '../utils'
+import { sauvegarderCompositions, sauvegarderMatch } from '../api'
 
 export default function EditMatchPage({
   match,
   compositions,
   joueuses,
   onBack,
+  onSaved,
 }: {
   match?: Match
   compositions: CompositionSet[]
   joueuses: Joueuse[]
   onBack: () => void
+  onSaved: (matchId: string) => void
 }) {
   const [date, setDate] = useState(match?.date ?? '')
   const [adversaire, setAdversaire] = useState(match?.adversaire ?? '')
@@ -30,7 +33,7 @@ export default function EditMatchPage({
   const [compos, setCompos] = useState<Record<number, AffectationSet[]>>(
     () => {
       const initial: Record<number, AffectationSet[]> = {}
-      const setsDepart = match?.sets ?? [{ numero: 1 }]
+      const setsDepart = match?.sets ?? [{ numero: 1, pointsVLS: 0, pointsAdv: 0 }]
       setsDepart.forEach((s) => {
         const existante = compositions.find(
           (c) => c.matchId === match?.id && c.setNumero === s.numero,
@@ -42,7 +45,8 @@ export default function EditMatchPage({
       return initial
     },
   )
-  const [copié, setCopié] = useState<'match' | 'compos' | null>(null)
+  const [enregistrement, setEnregistrement] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const matchId = match?.id ?? (date && adversaire ? `${date}-${slugify(adversaire)}` : '')
 
@@ -79,29 +83,29 @@ export default function EditMatchPage({
     }))
   }
 
-  const matchObjet: Match = {
-    id: matchId,
-    date,
-    adversaire,
-    domicile,
-    lieu,
-    sets,
-  }
-
-  const compositionsObjet: CompositionSet[] = sets.map((s) => ({
-    matchId,
-    setNumero: s.numero,
-    affectations: compos[s.numero] ?? affectationsVides(),
-  }))
-
-  function copier(quoi: 'match' | 'compos') {
-    const texte =
-      quoi === 'match'
-        ? JSON.stringify(matchObjet, null, 2)
-        : JSON.stringify(compositionsObjet, null, 2)
-    navigator.clipboard.writeText(texte)
-    setCopié(quoi)
-    setTimeout(() => setCopié(null), 1800)
+  async function enregistrer() {
+    if (!date || !adversaire) {
+      setErreur('Renseigne au moins la date et l\'adversaire.')
+      return
+    }
+    setEnregistrement(true)
+    setErreur(null)
+    try {
+      const matchObjet: Match = { id: matchId, date, adversaire, domicile, lieu, sets }
+      await sauvegarderMatch(matchObjet)
+      await sauvegarderCompositions(
+        sets.map((s) => ({
+          matchId,
+          setNumero: s.numero,
+          affectations: compos[s.numero] ?? affectationsVides(),
+        })),
+      )
+      onSaved(matchId)
+    } catch (e) {
+      setErreur("L'enregistrement a échoué, réessaie.")
+    } finally {
+      setEnregistrement(false)
+    }
   }
 
   return (
@@ -110,6 +114,8 @@ export default function EditMatchPage({
         ← Retour
       </button>
       <h2>{match ? 'Modifier le match' : 'Nouveau match'}</h2>
+
+      {erreur && <p className="erreur-inline">{erreur}</p>}
 
       <div className="edit-section">
         <h3>Infos du match</h3>
@@ -181,16 +187,6 @@ export default function EditMatchPage({
         <button className="btn-add" onClick={ajouterSet}>
           + Ajouter un set
         </button>
-
-        <div className="json-output">
-          <div className="json-output-header">
-            <span>JSON à coller dans matches.json</span>
-            <button className="btn-copy" onClick={() => copier('match')}>
-              {copié === 'match' ? 'Copié !' : 'Copier'}
-            </button>
-          </div>
-          <pre>{JSON.stringify(matchObjet, null, 2)}</pre>
-        </div>
       </div>
 
       <div className="edit-section">
@@ -235,24 +231,11 @@ export default function EditMatchPage({
             })}
           </div>
         ))}
-
-        <div className="json-output">
-          <div className="json-output-header">
-            <span>JSON à coller dans compositions.json</span>
-            <button className="btn-copy" onClick={() => copier('compos')}>
-              {copié === 'compos' ? 'Copié !' : 'Copier'}
-            </button>
-          </div>
-          <pre>{JSON.stringify(compositionsObjet, null, 2)}</pre>
-        </div>
       </div>
 
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-        Copie les deux blocs JSON et remplace/ajoute l'entrée correspondante
-        dans <code>src/data/matches.json</code> et{' '}
-        <code>src/data/compositions.json</code>, puis commit + push. Le site
-        se redéploie automatiquement.
-      </p>
+      <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
+        {enregistrement ? 'Enregistrement…' : 'Enregistrer le match'}
+      </button>
     </div>
   )
 }

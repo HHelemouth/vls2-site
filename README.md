@@ -2,44 +2,43 @@
 
 Site de suivi pour l'équipe VLS 2 : résultats de matchs, compositions par
 set/poste, et quelques statistiques de base. Stack : React + TypeScript +
-Vite, déployé sur GitHub Pages via GitHub Actions.
+Vite, déployé sur GitHub Pages via GitHub Actions, données stockées dans
+Supabase (Postgres) avec mise à jour en temps réel entre tous les
+visiteurs.
 
-## État actuel
+## Fonctionnement des données
 
-Socle V1 avec des **données d'exemple fictives** (`demo: true`) dans
-`src/data/`. Rien de réel n'est encore saisi.
+Toutes les données (effectif, matchs, compositions) sont dans une base
+Supabase, pas dans des fichiers du repo. Les saisies et modifications
+faites depuis le site (onglet Équipe, "+ Nouveau match", "Modifier" sur un
+set) s'enregistrent directement en base et sont visibles par tout le monde
+en quasi temps réel, sans commit ni push.
+
+- Client Supabase : `src/supabaseClient.ts`
+- Lecture / écriture / abonnement temps réel : `src/api.ts`
+- Schéma des tables (`joueuses`, `matches`, `compositions`) : voir le
+  projet Supabase, section SQL Editor / Table Editor
+
+⚠️ La clé utilisée (`anon public`) est volontairement publique — c'est la
+clé prévue pour être exposée côté client chez Supabase. La sécurité repose
+sur les policies RLS, actuellement réglées en accès libre (n'importe qui
+avec le lien du site peut lire et écrire). Si l'équipe grandit ou si le
+site devient plus visible, il faudra resserrer ces policies (mot de passe
+partagé, authentification par joueuse, etc.).
 
 ## Schéma de données
 
-Trois fichiers JSON dans `src/data/`, décrits dans `src/types.ts` :
+Décrit dans `src/types.ts` :
 
-- **`joueuses.json`** — l'effectif. Chaque joueuse a un `posteCle` : son
-  poste attribué pour la saison (Passeur, Pointu, Central,
-  Réceptionneur-Attaquant, Libero).
-- **`matches.json`** — un match par entrée : date, adversaire, domicile ou
-  extérieur, lieu, et le score de chaque set joué.
-- **`compositions.json`** — une entrée par set joué, avec les 6 positions du
+- **Joueuse** — nom, numéro, `posteCle` (poste attribué pour la saison),
+  `autresPostes` (postes secondaires, optionnel), `numeroLicence`
+  (optionnel).
+- **Match** — date, adversaire, domicile/extérieur, lieu, score de chaque
+  set joué.
+- **CompositionSet** — une entrée par set joué, avec les 6 positions du
   terrain (P1 à P6, numérotation rotation volley) et pour chacune : la
   joueuse et le poste réellement joué ce set-là (`posteJoue`), qui peut
-  différer du `posteCle` de la joueuse (ex : une passeuse qui joue en
-  réceptionneuse-attaquante sur un set donné).
-
-C'est ce dernier point qui permet de distinguer "poste habituel" et "poste
-joué", et donc de repérer les changements ponctuels de poste dans l'onglet
-Stats.
-
-## Prochaine étape : remplacer les données d'exemple
-
-Deux options, à décider ensemble :
-
-1. **Édition directe des JSON** — le plus simple pour démarrer. Chaque
-   personne qui saisit un match modifie les fichiers dans `src/data/` et
-   pousse sur GitHub (nécessite un minimum d'aisance avec Git).
-2. **Google Sheet en source de données** — plus accessible pour plusieurs
-   coéquipiers qui ne sont pas à l'aise avec GitHub. Le site irait lire un
-   Sheet publié (export CSV) au lieu des fichiers JSON locaux. Ça demande un
-   peu de travail de branchement, mais évite à tout le monde de toucher au
-   code.
+  différer du `posteCle` de la joueuse.
 
 ## Développement local
 
@@ -51,11 +50,8 @@ npm run dev
 ## Déploiement
 
 Le workflow `.github/workflows/deploy.yml` build et déploie automatiquement
-sur GitHub Pages à chaque push sur `main`. Il faut activer Pages sur le repo
-GitHub en source "GitHub Actions" (Settings → Pages).
-
-Le `base` dans `vite.config.ts` est réglé sur `/vls2-site/` — à adapter si
-le repo est créé sous un autre nom.
+sur GitHub Pages à chaque push sur `main`. Le `base` dans `vite.config.ts`
+est réglé sur `/vls2-site/`.
 
 ## Photos et vidéos
 

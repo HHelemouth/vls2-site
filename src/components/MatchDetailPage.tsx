@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
 import CourtDiagram from './CourtDiagram'
 import { affectationsVides } from '../utils'
+import { sauvegarderCompositions } from '../api'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
@@ -26,7 +27,8 @@ function SetBlock({
   const [brouillon, setBrouillon] = useState<AffectationSet[]>(
     composition?.affectations ?? affectationsVides(),
   )
-  const [copié, setCopié] = useState(false)
+  const [enregistrement, setEnregistrement] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const changements = (enÉdition ? brouillon : composition?.affectations ?? []).filter(
     (a) => {
@@ -45,15 +47,19 @@ function SetBlock({
     )
   }
 
-  function copierJSON() {
-    const objet: CompositionSet = {
-      matchId: match.id,
-      setNumero,
-      affectations: brouillon,
+  async function enregistrer() {
+    setEnregistrement(true)
+    setErreur(null)
+    try {
+      await sauvegarderCompositions([
+        { matchId: match.id, setNumero, affectations: brouillon },
+      ])
+      setEnÉdition(false)
+    } catch (e) {
+      setErreur("L'enregistrement a échoué, réessaie.")
+    } finally {
+      setEnregistrement(false)
     }
-    navigator.clipboard.writeText(JSON.stringify(objet, null, 2))
-    setCopié(true)
-    setTimeout(() => setCopié(false), 1800)
   }
 
   return (
@@ -75,9 +81,11 @@ function SetBlock({
             setEnÉdition((v) => !v)
           }}
         >
-          {enÉdition ? 'Terminé' : 'Modifier'}
+          {enÉdition ? 'Annuler' : 'Modifier'}
         </button>
       </div>
+
+      {erreur && <p className="erreur-inline">{erreur}</p>}
 
       {enÉdition ? (
         <>
@@ -87,21 +95,9 @@ function SetBlock({
             editable
             onChangeAffectation={modifierAffectation}
           />
-          <div className="json-output">
-            <div className="json-output-header">
-              <span>JSON à coller dans compositions.json</span>
-              <button className="btn-copy" onClick={copierJSON}>
-                {copié ? 'Copié !' : 'Copier'}
-              </button>
-            </div>
-            <pre>
-              {JSON.stringify(
-                { matchId: match.id, setNumero, affectations: brouillon },
-                null,
-                2,
-              )}
-            </pre>
-          </div>
+          <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
+            {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
+          </button>
         </>
       ) : (
         <CourtDiagram composition={composition} joueuses={joueuses} />

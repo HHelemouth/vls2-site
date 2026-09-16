@@ -29,7 +29,6 @@ export interface Match {
   domicile: boolean
   lieu: string
   sets: SetScore[]
-  demo?: boolean // true pour les données d'exemple, à retirer une fois les vrais matchs saisis
 }
 
 // Position sur le terrain façon rotation volley : P1 à P6.

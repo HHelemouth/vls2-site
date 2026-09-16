@@ -1,17 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ResultsPage from './components/ResultsPage'
 import TeamPage from './components/TeamPage'
 import StatsPage from './components/StatsPage'
 import MatchDetailPage from './components/MatchDetailPage'
 import EditMatchPage from './components/EditMatchPage'
-import joueusesData from './data/joueuses.json'
-import matchesData from './data/matches.json'
-import compositionsData from './data/compositions.json'
+import { chargerTout, écouterChangements } from './api'
 import type { CompositionSet, Joueuse, Match } from './types'
-
-const joueuses = joueusesData as Joueuse[]
-const matches = matchesData as Match[]
-const compositions = compositionsData as CompositionSet[]
 
 type Onglet = 'resultats' | 'equipe' | 'stats'
 type Vue =
@@ -22,7 +16,32 @@ type Vue =
 export default function App() {
   const [onglet, setOnglet] = useState<Onglet>('resultats')
   const [vue, setVue] = useState<Vue>({ type: 'liste' })
-  const contientDemo = matches.some((m) => m.demo)
+
+  const [joueuses, setJoueuses] = useState<Joueuse[]>([])
+  const [matches, setMatches] = useState<Match[]>([])
+  const [compositions, setCompositions] = useState<CompositionSet[]>([])
+  const [chargement, setChargement] = useState(true)
+  const [erreur, setErreur] = useState<string | null>(null)
+
+  async function recharger() {
+    try {
+      const données = await chargerTout()
+      setJoueuses(données.joueuses)
+      setMatches(données.matches)
+      setCompositions(données.compositions)
+      setErreur(null)
+    } catch (e) {
+      setErreur("Impossible de charger les données depuis la base. Vérifie ta connexion et réessaie.")
+    } finally {
+      setChargement(false)
+    }
+  }
+
+  useEffect(() => {
+    recharger()
+    const arrêter = écouterChangements(() => recharger())
+    return arrêter
+  }, [])
 
   function allerAuxOnglets(nom: Onglet) {
     setOnglet(nom)
@@ -43,13 +62,7 @@ export default function App() {
         <span className="saison">Saison 2026/2027 — Poule CE2</span>
       </header>
 
-      {contientDemo && (
-        <div className="demo-banner">
-          <strong>Données de démonstration.</strong> Les matchs et
-          compositions affichés ici sont fictifs, le temps de remplacer les
-          fichiers dans <code>src/data/</code> par les vrais résultats.
-        </div>
-      )}
+      {erreur && <div className="demo-banner erreur-banner">{erreur}</div>}
 
       <nav className="tabs">
         <button
@@ -78,46 +91,53 @@ export default function App() {
         </button>
       </nav>
 
-      {vue.type === 'match' && matchSélectionné && (
-        <MatchDetailPage
-          match={matchSélectionné}
-          joueuses={joueuses}
-          compositions={compositions}
-          onBack={() => setVue({ type: 'liste' })}
-          onEdit={() => setVue({ type: 'edition', matchId: matchSélectionné.id })}
-        />
-      )}
+      {chargement ? (
+        <p style={{ color: 'var(--text-muted)' }}>Chargement…</p>
+      ) : (
+        <>
+          {vue.type === 'match' && matchSélectionné && (
+            <MatchDetailPage
+              match={matchSélectionné}
+              joueuses={joueuses}
+              compositions={compositions}
+              onBack={() => setVue({ type: 'liste' })}
+              onEdit={() => setVue({ type: 'edition', matchId: matchSélectionné.id })}
+            />
+          )}
 
-      {vue.type === 'edition' && (
-        <EditMatchPage
-          match={matchEnÉdition}
-          compositions={compositions}
-          joueuses={joueuses}
-          onBack={() =>
-            setVue(
-              matchEnÉdition
-                ? { type: 'match', matchId: matchEnÉdition.id }
-                : { type: 'liste' },
-            )
-          }
-        />
-      )}
+          {vue.type === 'edition' && (
+            <EditMatchPage
+              match={matchEnÉdition}
+              compositions={compositions}
+              joueuses={joueuses}
+              onBack={() =>
+                setVue(
+                  matchEnÉdition
+                    ? { type: 'match', matchId: matchEnÉdition.id }
+                    : { type: 'liste' },
+                )
+              }
+              onSaved={(matchId) => setVue({ type: 'match', matchId })}
+            />
+          )}
 
-      {vue.type === 'liste' && onglet === 'resultats' && (
-        <ResultsPage
-          matches={matches}
-          onSelect={(matchId) => setVue({ type: 'match', matchId })}
-        />
-      )}
-      {vue.type === 'liste' && onglet === 'equipe' && (
-        <TeamPage joueuses={joueuses} />
-      )}
-      {vue.type === 'liste' && onglet === 'stats' && (
-        <StatsPage
-          matches={matches}
-          joueuses={joueuses}
-          compositions={compositions}
-        />
+          {vue.type === 'liste' && onglet === 'resultats' && (
+            <ResultsPage
+              matches={matches}
+              onSelect={(matchId) => setVue({ type: 'match', matchId })}
+            />
+          )}
+          {vue.type === 'liste' && onglet === 'equipe' && (
+            <TeamPage joueuses={joueuses} />
+          )}
+          {vue.type === 'liste' && onglet === 'stats' && (
+            <StatsPage
+              matches={matches}
+              joueuses={joueuses}
+              compositions={compositions}
+            />
+          )}
+        </>
       )}
 
       <footer className="note">

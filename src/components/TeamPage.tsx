@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Joueuse, Poste } from '../types'
 import { POSTES } from '../utils'
+import { sauvegarderJoueuses } from '../api'
 
 function prochainId(joueuses: Joueuse[]) {
   const nums = joueuses
@@ -13,7 +14,9 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
   const [licencesVisibles, setLicencesVisibles] = useState(false)
   const [enÉdition, setEnÉdition] = useState(false)
   const [brouillon, setBrouillon] = useState<Joueuse[]>(joueuses)
-  const [copié, setCopié] = useState(false)
+  const [idsSupprimés, setIdsSupprimés] = useState<string[]>([])
+  const [enregistrement, setEnregistrement] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const affichées = enÉdition ? brouillon : joueuses
   const triées = [...affichées].sort((a, b) => a.numero - b.numero)
@@ -60,12 +63,23 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
 
   function retirerJoueuse(id: string) {
     setBrouillon((b) => b.filter((j) => j.id !== id))
+    if (joueuses.some((j) => j.id === id)) {
+      setIdsSupprimés((s) => [...s, id])
+    }
   }
 
-  function copierJSON() {
-    navigator.clipboard.writeText(JSON.stringify(brouillon, null, 2))
-    setCopié(true)
-    setTimeout(() => setCopié(false), 1800)
+  async function enregistrer() {
+    setEnregistrement(true)
+    setErreur(null)
+    try {
+      await sauvegarderJoueuses(brouillon, idsSupprimés)
+      setIdsSupprimés([])
+      setEnÉdition(false)
+    } catch (e) {
+      setErreur("L'enregistrement a échoué, réessaie dans un instant.")
+    } finally {
+      setEnregistrement(false)
+    }
   }
 
   return (
@@ -84,13 +98,18 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
         <button
           className="btn-edit btn-edit-inline"
           onClick={() => {
-            if (!enÉdition) setBrouillon(joueuses)
+            if (!enÉdition) {
+              setBrouillon(joueuses)
+              setIdsSupprimés([])
+            }
             setEnÉdition((v) => !v)
           }}
         >
-          {enÉdition ? 'Terminé' : 'Modifier'}
+          {enÉdition ? 'Annuler' : 'Modifier'}
         </button>
       </div>
+
+      {erreur && <p className="erreur-inline">{erreur}</p>}
 
       {enÉdition ? (
         <>
@@ -157,18 +176,18 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
             </div>
           ))}
 
-          <button className="btn-add" onClick={ajouterJoueuse}>
-            + Ajouter une joueuse
-          </button>
-
-          <div className="json-output">
-            <div className="json-output-header">
-              <span>JSON à coller dans joueuses.json (remplace tout le fichier)</span>
-              <button className="btn-copy" onClick={copierJSON}>
-                {copié ? 'Copié !' : 'Copier'}
-              </button>
-            </div>
-            <pre>{JSON.stringify(brouillon, null, 2)}</pre>
+          <div className="edit-row">
+            <button className="btn-add" onClick={ajouterJoueuse}>
+              + Ajouter une joueuse
+            </button>
+            <button
+              className="btn-edit"
+              style={{ marginBottom: 0 }}
+              onClick={enregistrer}
+              disabled={enregistrement}
+            >
+              {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
+            </button>
           </div>
         </>
       ) : (
