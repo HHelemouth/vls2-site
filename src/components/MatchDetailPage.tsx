@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
 import CourtDiagram from './CourtDiagram'
 import { affectationsVides } from '../utils'
-import { sauvegarderCompositions } from '../api'
+import { sauvegarderCompositions, supprimerMatch } from '../api'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
@@ -124,18 +124,39 @@ export default function MatchDetailPage({
   compositions,
   onBack,
   onEdit,
+  onDeleted,
 }: {
   match: Match
   joueuses: Joueuse[]
   compositions: CompositionSet[]
   onBack: () => void
   onEdit: () => void
+  onDeleted: () => void
 }) {
   const joué = match.sets.length > 0
   const setsGagnés = match.sets.filter((s) =>
     setGagné(s.pointsVLS, s.pointsAdv),
   ).length
   const gagné = joué && setsGagnés > match.sets.length - setsGagnés
+  const [suppression, setSuppression] = useState(false)
+  const [erreurSuppression, setErreurSuppression] = useState<string | null>(null)
+
+  async function supprimer() {
+    const sûr = window.confirm(
+      `Supprimer définitivement le match contre ${match.adversaire} (${match.date}) ? Cette action est irréversible.`,
+    )
+    if (!sûr) return
+    setSuppression(true)
+    setErreurSuppression(null)
+    try {
+      await supprimerMatch(match.id)
+      onDeleted()
+    } catch (e) {
+      setErreurSuppression('La suppression a échoué, réessaie.')
+    } finally {
+      setSuppression(false)
+    }
+  }
 
   return (
     <div>
@@ -162,9 +183,16 @@ export default function MatchDetailPage({
         </div>
       </div>
 
-      <button className="btn-edit" onClick={onEdit}>
-        Modifier le score ou ajouter/retirer un set
-      </button>
+      <div className="edit-actions">
+        <button className="btn-edit" onClick={onEdit}>
+          Modifier le score ou ajouter/retirer un set
+        </button>
+        <button className="btn-delete" onClick={supprimer} disabled={suppression}>
+          {suppression ? 'Suppression…' : 'Supprimer ce match'}
+        </button>
+      </div>
+
+      {erreurSuppression && <p className="erreur-inline">{erreurSuppression}</p>}
 
       {!joué && (
         <p style={{ color: 'var(--text-muted)' }}>

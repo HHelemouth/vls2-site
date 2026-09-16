@@ -98,6 +98,7 @@ export default function App() {
               compositions={compositions}
               onBack={() => setVue({ type: 'liste' })}
               onEdit={() => setModaleMatch({ matchId: matchSélectionné.id })}
+              onDeleted={() => setVue({ type: 'liste' })}
             />
           )}
 
