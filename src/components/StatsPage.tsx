@@ -1,4 +1,7 @@
-import type { CompositionSet, Joueuse, Match } from '../types'
+import type { CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
+
+const AVANT: PositionTerrain[] = ['P2', 'P3', 'P4']
+const ARRIÈRE: PositionTerrain[] = ['P1', 'P5', 'P6']
 
 export default function StatsPage({
   matches,
@@ -36,11 +39,13 @@ export default function StatsPage({
     })
   })
 
-  // Statistiques par ligne (association de 2+ joueur·ses) : pour chaque
-  // paire présente dans une ligne, sets joués ensemble et taux de victoire.
-  const statsParPaire = new Map<
+  // Stats par ligne : qui se trouve ensemble en ligne avant (au filet) ou
+  // en ligne arrière sur un set, et le taux de victoire de ce set-là.
+  // Calculé directement à partir des positions du terrain, rien à saisir
+  // en plus.
+  const statsParLigne = new Map<
     string,
-    { noms: string; joués: number; gagnés: number }
+    { noms: string; ligne: 'Avant' | 'Arrière'; joués: number; gagnés: number }
   >()
 
   compositions.forEach((comp) => {
@@ -49,24 +54,35 @@ export default function StatsPage({
     if (!set) return
     const gagné = set.pointsVLS > set.pointsAdv
 
-    ;(comp.lignes ?? []).forEach((ligne) => {
-      for (let i = 0; i < ligne.joueuseIds.length; i++) {
-        for (let j = i + 1; j < ligne.joueuseIds.length; j++) {
-          const paire = [ligne.joueuseIds[i], ligne.joueuseIds[j]].sort()
-          const clé = paire.join('|')
+    ;([
+      ['Avant', AVANT],
+      ['Arrière', ARRIÈRE],
+    ] as const).forEach(([label, positions]) => {
+      const ids = positions
+        .map((pos) => comp.affectations.find((a) => a.position === pos)?.joueuseId)
+        .filter((id): id is string => Boolean(id))
+
+      if (ids.length < 2) return
+
+      // Toutes les paires possibles au sein de cette ligne.
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          const paire = [ids[i], ids[j]].sort()
+          const clé = `${label}|${paire.join('|')}`
           const noms = paire
             .map((id) => joueuses.find((j) => j.id === id)?.nom ?? '?')
             .join(' + ')
-          const entrée = statsParPaire.get(clé) ?? { noms, joués: 0, gagnés: 0 }
+          const entrée =
+            statsParLigne.get(clé) ?? { noms, ligne: label, joués: 0, gagnés: 0 }
           entrée.joués += 1
           if (gagné) entrée.gagnés += 1
-          statsParPaire.set(clé, entrée)
+          statsParLigne.set(clé, entrée)
         }
       }
     })
   })
 
-  const paires = Array.from(statsParPaire.values()).sort(
+  const lignes = Array.from(statsParLigne.values()).sort(
     (a, b) => b.joués - a.joués,
   )
 
@@ -112,24 +128,26 @@ export default function StatsPage({
         </table>
       </div>
 
-      <h3 className="section-label">Lignes</h3>
-      {paires.length > 0 ? (
+      <h3 className="section-label">Associations par ligne</h3>
+      {lignes.length > 0 ? (
         <div className="table-scroll">
           <table className="postes-table">
             <thead>
               <tr>
                 <th>Association</th>
+                <th>Ligne</th>
                 <th>Sets joués ensemble</th>
                 <th>Taux de victoire</th>
               </tr>
             </thead>
             <tbody>
-              {paires.map((p) => (
-                <tr key={p.noms}>
-                  <td>{p.noms}</td>
-                  <td>{p.joués}</td>
+              {lignes.map((l) => (
+                <tr key={`${l.ligne}-${l.noms}`}>
+                  <td>{l.noms}</td>
+                  <td>{l.ligne}</td>
+                  <td>{l.joués}</td>
                   <td>
-                    {Math.round((p.gagnés / p.joués) * 100)}% ({p.gagnés}/{p.joués})
+                    {Math.round((l.gagnés / l.joués) * 100)}% ({l.gagnés}/{l.joués})
                   </td>
                 </tr>
               ))}
@@ -138,9 +156,9 @@ export default function StatsPage({
         </div>
       ) : (
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          Aucune ligne renseignée pour l'instant — groupe des joueur·ses
-          "sur la même ligne" en modifiant un set pour voir apparaître ces
-          stats.
+          Dès que des compositions complètes (ligne avant et/ou arrière)
+          seront saisies sur des sets joués, les associations qui gagnent le
+          plus souvent apparaîtront ici automatiquement.
         </p>
       )}
 

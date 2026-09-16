@@ -6,14 +6,8 @@ import type {
 } from '../types'
 import { POSTES } from '../utils'
 
-const ORDRE_TERRAIN: { position: PositionTerrain; ligne: 'front' | 'back' }[] = [
-  { position: 'P4', ligne: 'front' },
-  { position: 'P3', ligne: 'front' },
-  { position: 'P2', ligne: 'front' },
-  { position: 'P5', ligne: 'back' },
-  { position: 'P6', ligne: 'back' },
-  { position: 'P1', ligne: 'back' },
-]
+const AVANT: PositionTerrain[] = ['P4', 'P3', 'P2']
+const ARRIÈRE: PositionTerrain[] = ['P5', 'P6', 'P1']
 
 export default function CourtDiagram({
   composition,
@@ -38,65 +32,79 @@ export default function CourtDiagram({
     )
   }
 
+  function zone(position: PositionTerrain) {
+    const affectation: AffectationSet | undefined = composition
+      ? composition.affectations.find((a) => a.position === position)
+      : undefined
+    const joueuse = affectation
+      ? joueuses.find((j) => j.id === affectation.joueuseId)
+      : undefined
+    const changement =
+      joueuse && affectation && joueuse.posteCle !== affectation.posteJoue
+
+    if (editable) {
+      return (
+        <div className="zone zone-editable" key={position}>
+          <span className="pos-label">{position}</span>
+          <select
+            className="zone-select"
+            value={affectation?.joueuseId ?? ''}
+            onChange={(e) =>
+              onChangeAffectation?.(position, 'joueuseId', e.target.value)
+            }
+          >
+            <option value="">— joueur·se —</option>
+            {joueuses.map((j) => (
+              <option key={j.id} value={j.id}>
+                {j.nom}
+              </option>
+            ))}
+          </select>
+          <select
+            className="zone-select"
+            value={affectation?.posteJoue ?? 'Passeur'}
+            onChange={(e) =>
+              onChangeAffectation?.(position, 'posteJoue', e.target.value)
+            }
+          >
+            {POSTES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
+      )
+    }
+
+    return (
+      <div className="zone" key={position}>
+        <span className="pos-label">{position}</span>
+        <div>
+          <div className="joueuse">{joueuse?.nom ?? '—'}</div>
+          <div className={`poste ${changement ? 'changed' : ''}`}>
+            {affectation?.posteJoue ?? ''}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="court">
-      {ORDRE_TERRAIN.map(({ position, ligne }) => {
-        const affectation: AffectationSet | undefined = composition
-          ? composition.affectations.find((a) => a.position === position)
-          : undefined
-        const joueuse = affectation
-          ? joueuses.find((j) => j.id === affectation.joueuseId)
-          : undefined
-        const changement =
-          joueuse && affectation && joueuse.posteCle !== affectation.posteJoue
+      <div className="court-ligne">
+        <span className="court-ligne-label">Ligne avant</span>
+        <div className="court-ligne-zones">{AVANT.map(zone)}</div>
+      </div>
 
-        if (editable) {
-          return (
-            <div className={`zone ${ligne} zone-editable`} key={position}>
-              <span className="pos-label">{position}</span>
-              <select
-                className="zone-select"
-                value={affectation?.joueuseId ?? ''}
-                onChange={(e) =>
-                  onChangeAffectation?.(position, 'joueuseId', e.target.value)
-                }
-              >
-                <option value="">— joueur·se —</option>
-                {joueuses.map((j) => (
-                  <option key={j.id} value={j.id}>
-                    {j.nom}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="zone-select"
-                value={affectation?.posteJoue ?? 'Passeur'}
-                onChange={(e) =>
-                  onChangeAffectation?.(position, 'posteJoue', e.target.value)
-                }
-              >
-                {POSTES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )
-        }
+      <div className="court-filet">
+        <span>Filet</span>
+      </div>
 
-        return (
-          <div className={`zone ${ligne}`} key={position}>
-            <span className="pos-label">{position}</span>
-            <div>
-              <div className="joueuse">{joueuse?.nom ?? '—'}</div>
-              <div className={`poste ${changement ? 'changed' : ''}`}>
-                {affectation?.posteJoue ?? ''}
-              </div>
-            </div>
-          </div>
-        )
-      })}
+      <div className="court-ligne">
+        <span className="court-ligne-label">Ligne arrière</span>
+        <div className="court-ligne-zones">{ARRIÈRE.map(zone)}</div>
+      </div>
     </div>
   )
 }
