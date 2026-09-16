@@ -187,6 +187,16 @@ nav.tabs button.active {
   color: var(--loss);
 }
 
+.issue.a-venir {
+  color: var(--text-muted);
+  border-color: var(--panel-line);
+  font-size: 0.95rem;
+}
+
+.match-card .issue.a-venir {
+  font-family: var(--font-mono);
+}
+
 /* Compositions */
 
 .comp-controls {

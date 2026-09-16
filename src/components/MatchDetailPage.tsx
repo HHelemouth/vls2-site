@@ -119,10 +119,11 @@ export default function MatchDetailPage({
   onBack: () => void
   onEdit: () => void
 }) {
+  const joué = match.sets.length > 0
   const setsGagnés = match.sets.filter((s) =>
     setGagné(s.pointsVLS, s.pointsAdv),
   ).length
-  const gagné = setsGagnés > match.sets.length - setsGagnés
+  const gagné = joué && setsGagnés > match.sets.length - setsGagnés
 
   return (
     <div>
@@ -144,14 +145,21 @@ export default function MatchDetailPage({
           <h2>{match.adversaire}</h2>
           <div className="lieu">{match.lieu}</div>
         </div>
-        <div className={`issue issue-large ${gagné ? 'win' : 'loss'}`}>
-          {gagné ? 'Victoire' : 'Défaite'}
+        <div className={`issue issue-large ${joué ? (gagné ? 'win' : 'loss') : 'a-venir'}`}>
+          {joué ? (gagné ? 'Victoire' : 'Défaite') : 'À venir'}
         </div>
       </div>
 
       <button className="btn-edit" onClick={onEdit}>
         Modifier le score ou ajouter/retirer un set
       </button>
+
+      {!joué && (
+        <p style={{ color: 'var(--text-muted)' }}>
+          Match pas encore joué — les sets et la composition n'ont pas
+          encore été saisis.
+        </p>
+      )}
 
       {match.sets.map((set) => (
         <SetBlock

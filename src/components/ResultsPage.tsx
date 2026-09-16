@@ -21,7 +21,8 @@ export default function ResultsPage({
   return (
     <div>
       {triés.map((match) => {
-        const gagné = matchGagne(match)
+        const joué = match.sets.length > 0
+        const gagné = joué && matchGagne(match)
         return (
           <div
             className="match-card cliquable"
@@ -45,23 +46,29 @@ export default function ResultsPage({
               </div>
               <div className="adversaire">{match.adversaire}</div>
               <div className="lieu">{match.lieu}</div>
-              <div className="sets">
-                {match.sets.map((s) => {
-                  const setGagné = s.pointsVLS > s.pointsAdv
-                  return (
-                    <span
-                      key={s.numero}
-                      className={`set-pill ${setGagné ? 'win' : 'loss'}`}
-                    >
-                      {s.pointsVLS}–{s.pointsAdv}
-                    </span>
-                  )
-                })}
+              {joué && (
+                <div className="sets">
+                  {match.sets.map((s) => {
+                    const setGagné = s.pointsVLS > s.pointsAdv
+                    return (
+                      <span
+                        key={s.numero}
+                        className={`set-pill ${setGagné ? 'win' : 'loss'}`}
+                      >
+                        {s.pointsVLS}–{s.pointsAdv}
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+            {joué ? (
+              <div className={`issue ${gagné ? 'win' : 'loss'}`}>
+                {gagné ? 'V' : 'D'}
               </div>
-            </div>
-            <div className={`issue ${gagné ? 'win' : 'loss'}`}>
-              {gagné ? 'V' : 'D'}
-            </div>
+            ) : (
+              <div className="issue a-venir">À venir</div>
+            )}
           </div>
         )
       })}

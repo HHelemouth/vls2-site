@@ -69,7 +69,7 @@ export default function App() {
           className={onglet === 'resultats' && vue.type === 'liste' ? 'active' : ''}
           onClick={() => allerAuxOnglets('resultats')}
         >
-          Résultats
+          Matchs
         </button>
         <button
           className={onglet === 'equipe' && vue.type === 'liste' ? 'active' : ''}
