@@ -43,7 +43,19 @@ function SetBlock({
     valeur: string,
   ) {
     setBrouillon((b) =>
-      b.map((a) => (a.position === position ? { ...a, [champ]: valeur } : a)),
+      b.map((a) => {
+        if (a.position !== position) return a
+        if (champ === 'joueuseId') {
+          // Pré-remplit avec le poste clé de la saison, modifiable ensuite.
+          const joueuse = joueuses.find((j) => j.id === valeur)
+          return {
+            ...a,
+            joueuseId: valeur,
+            posteJoue: joueuse?.posteCle ?? a.posteJoue,
+          }
+        }
+        return { ...a, posteJoue: valeur as AffectationSet['posteJoue'] }
+      }),
     )
   }
 
