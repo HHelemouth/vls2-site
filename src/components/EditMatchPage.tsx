@@ -195,6 +195,7 @@ export default function EditMatchPage({
                 type="number"
                 min={0}
                 value={s.pointsVLS}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => updateSet(s.numero, 'pointsVLS', Number(e.target.value))}
               />
             </label>
@@ -204,6 +205,7 @@ export default function EditMatchPage({
                 type="number"
                 min={0}
                 value={s.pointsAdv}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) => updateSet(s.numero, 'pointsAdv', Number(e.target.value))}
               />
             </label>

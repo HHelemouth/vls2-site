@@ -141,6 +141,7 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
                     type="number"
                     min={0}
                     value={j.numero}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => modifierChamp(j.id, 'numero', e.target.value)}
                   />
                 </label>
