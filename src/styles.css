@@ -120,8 +120,8 @@ nav.tabs button.active {
   box-shadow: var(--card-shadow);
   border: 1px solid var(--panel-line);
   border-radius: 16px;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1rem;
@@ -130,6 +130,9 @@ nav.tabs button.active {
 
 .match-card .infos {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
 
 .match-card .date {
@@ -137,23 +140,26 @@ nav.tabs button.active {
   color: var(--text-muted);
   font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
 }
 
 .match-card .adversaire {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  line-height: 1.35;
   font-weight: 600;
-  margin: 0.15rem 0;
 }
 
 .match-card .lieu {
   color: var(--text-muted);
   font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .match-card .sets {
   display: flex;
   gap: 0.4rem;
+  margin-top: 0.2rem;
 }
 
 .set-pill {
