@@ -36,6 +36,40 @@ export default function StatsPage({
     })
   })
 
+  // Statistiques par ligne (association de 2+ joueur·ses) : pour chaque
+  // paire présente dans une ligne, sets joués ensemble et taux de victoire.
+  const statsParPaire = new Map<
+    string,
+    { noms: string; joués: number; gagnés: number }
+  >()
+
+  compositions.forEach((comp) => {
+    const match = matches.find((m) => m.id === comp.matchId)
+    const set = match?.sets.find((s) => s.numero === comp.setNumero)
+    if (!set) return
+    const gagné = set.pointsVLS > set.pointsAdv
+
+    ;(comp.lignes ?? []).forEach((ligne) => {
+      for (let i = 0; i < ligne.joueuseIds.length; i++) {
+        for (let j = i + 1; j < ligne.joueuseIds.length; j++) {
+          const paire = [ligne.joueuseIds[i], ligne.joueuseIds[j]].sort()
+          const clé = paire.join('|')
+          const noms = paire
+            .map((id) => joueuses.find((j) => j.id === id)?.nom ?? '?')
+            .join(' + ')
+          const entrée = statsParPaire.get(clé) ?? { noms, joués: 0, gagnés: 0 }
+          entrée.joués += 1
+          if (gagné) entrée.gagnés += 1
+          statsParPaire.set(clé, entrée)
+        }
+      }
+    })
+  })
+
+  const paires = Array.from(statsParPaire.values()).sort(
+    (a, b) => b.joués - a.joués,
+  )
+
   return (
     <div>
       <div className="stat-grid">
@@ -78,11 +112,41 @@ export default function StatsPage({
         </table>
       </div>
 
+      <h3 className="section-label">Lignes</h3>
+      {paires.length > 0 ? (
+        <div className="table-scroll">
+          <table className="postes-table">
+            <thead>
+              <tr>
+                <th>Association</th>
+                <th>Sets joués ensemble</th>
+                <th>Taux de victoire</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paires.map((p) => (
+                <tr key={p.noms}>
+                  <td>{p.noms}</td>
+                  <td>{p.joués}</td>
+                  <td>
+                    {Math.round((p.gagnés / p.joués) * 100)}% ({p.gagnés}/{p.joués})
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+          Aucune ligne renseignée pour l'instant — groupe des joueur·ses
+          "sur la même ligne" en modifiant un set pour voir apparaître ces
+          stats.
+        </p>
+      )}
+
       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
-        Base minimale pour l'instant : victoires/défaites, taux de sets gagnés
-        et fréquence des changements de poste. D'autres indicateurs (efficacité
-        par poste, rotations les plus gagnantes, séries en cours) viendront une
-        fois qu'il y aura plus de matchs réels saisis.
+        D'autres indicateurs (efficacité par poste, séries en cours) viendront
+        une fois qu'il y aura plus de matchs réels saisis.
       </p>
     </div>
   )

@@ -41,8 +41,15 @@ export interface AffectationSet {
   posteJoue: Poste // peut différer du posteCle de la joueuse
 }
 
+// Un groupe de joueuses qui tournent "sur la même ligne" pendant un set —
+// utile pour repérer si certaines associations gagnent plus souvent.
+export interface Ligne {
+  joueuseIds: string[]
+}
+
 export interface CompositionSet {
   matchId: string
   setNumero: number
   affectations: AffectationSet[]
+  lignes?: Ligne[]
 }

@@ -1,11 +1,97 @@
 import { useState } from 'react'
-import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
+import type {
+  AffectationSet,
+  CompositionSet,
+  Joueuse,
+  Ligne,
+  Match,
+  PositionTerrain,
+} from '../types'
 import CourtDiagram from './CourtDiagram'
 import { affectationsVides } from '../utils'
 import { sauvegarderCompositions, sauvegarderMatch, supprimerMatch } from '../api'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
+}
+
+function nomsLigne(ligne: Ligne, joueuses: Joueuse[]) {
+  return ligne.joueuseIds
+    .map((id) => joueuses.find((j) => j.id === id)?.nom ?? '?')
+    .join(' + ')
+}
+
+function LignesEditeur({
+  lignes,
+  joueursDisponibles,
+  joueuses,
+  onChange,
+}: {
+  lignes: Ligne[]
+  joueursDisponibles: string[]
+  joueuses: Joueuse[]
+  onChange: (lignes: Ligne[]) => void
+}) {
+  function ajouterLigne() {
+    onChange([...lignes, { joueuseIds: [] }])
+  }
+
+  function retirerLigne(index: number) {
+    onChange(lignes.filter((_, i) => i !== index))
+  }
+
+  function basculerJoueuse(index: number, joueuseId: string) {
+    onChange(
+      lignes.map((ligne, i) => {
+        if (i !== index) return ligne
+        const présent = ligne.joueuseIds.includes(joueuseId)
+        return {
+          joueuseIds: présent
+            ? ligne.joueuseIds.filter((id) => id !== joueuseId)
+            : [...ligne.joueuseIds, joueuseId],
+        }
+      }),
+    )
+  }
+
+  if (joueursDisponibles.length === 0) {
+    return (
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+        Renseigne d'abord les 6 positions du terrain pour pouvoir grouper des
+        joueur·ses par ligne.
+      </p>
+    )
+  }
+
+  return (
+    <div className="lignes-edit">
+      {lignes.map((ligne, i) => (
+        <div className="ligne-row" key={i}>
+          <div className="ligne-checkboxes">
+            {joueursDisponibles.map((id) => {
+              const j = joueuses.find((j) => j.id === id)
+              return (
+                <label className="checkbox-inline" key={id}>
+                  <input
+                    type="checkbox"
+                    checked={ligne.joueuseIds.includes(id)}
+                    onChange={() => basculerJoueuse(i, id)}
+                  />
+                  {j?.nom ?? '?'}
+                </label>
+              )
+            })}
+          </div>
+          <button className="btn-remove" onClick={() => retirerLigne(i)}>
+            Retirer
+          </button>
+        </div>
+      ))}
+      <button className="btn-add" onClick={ajouterLigne}>
+        + Ajouter une ligne
+      </button>
+    </div>
+  )
 }
 
 function SetBlock({
@@ -27,6 +113,9 @@ function SetBlock({
   const [brouillon, setBrouillon] = useState<AffectationSet[]>(
     composition?.affectations ?? affectationsVides(),
   )
+  const [lignesBrouillon, setLignesBrouillon] = useState<Ligne[]>(
+    composition?.lignes ?? [],
+  )
   const [scoreVLS, setScoreVLS] = useState(pointsVLS)
   const [scoreAdv, setScoreAdv] = useState(pointsAdv)
   const [enregistrement, setEnregistrement] = useState(false)
@@ -38,6 +127,10 @@ function SetBlock({
       return j && j.posteCle !== a.posteJoue
     },
   ).length
+
+  const joueursSurLeSet = Array.from(
+    new Set(brouillon.map((a) => a.joueuseId).filter(Boolean)),
+  )
 
   function modifierAffectation(
     position: PositionTerrain,
@@ -63,6 +156,7 @@ function SetBlock({
 
   function entrerÉdition() {
     setBrouillon(composition?.affectations ?? affectationsVides())
+    setLignesBrouillon(composition?.lignes ?? [])
     setScoreVLS(pointsVLS)
     setScoreAdv(pointsAdv)
     setEnÉdition(true)
@@ -79,7 +173,12 @@ function SetBlock({
       )
       await sauvegarderMatch({ ...match, sets })
       await sauvegarderCompositions([
-        { matchId: match.id, setNumero, affectations: brouillon },
+        {
+          matchId: match.id,
+          setNumero,
+          affectations: brouillon,
+          lignes: lignesBrouillon.filter((l) => l.joueuseIds.length >= 2),
+        },
       ])
       setEnÉdition(false)
     } catch (e) {
@@ -141,12 +240,32 @@ function SetBlock({
             editable
             onChangeAffectation={modifierAffectation}
           />
+
+          <h4 className="lignes-titre">Lignes (joueur·ses qui tournent ensemble)</h4>
+          <LignesEditeur
+            lignes={lignesBrouillon}
+            joueursDisponibles={joueursSurLeSet}
+            joueuses={joueuses}
+            onChange={setLignesBrouillon}
+          />
+
           <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
             {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </>
       ) : (
-        <CourtDiagram composition={composition} joueuses={joueuses} />
+        <>
+          <CourtDiagram composition={composition} joueuses={joueuses} />
+          {composition?.lignes && composition.lignes.length > 0 && (
+            <div className="lignes-affichage">
+              {composition.lignes.map((ligne, i) => (
+                <span className="ligne-pill" key={i}>
+                  {nomsLigne(ligne, joueuses)}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
