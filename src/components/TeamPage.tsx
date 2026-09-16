@@ -202,41 +202,67 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
           </div>
         </>
       ) : (
-        <div className="table-scroll">
-          <table className="postes-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Joueur·se</th>
-                <th>Poste(s) de prédilection</th>
-                <th>N° de licence</th>
-              </tr>
-            </thead>
-            <tbody>
-              {triées.map((j) => (
-                <tr key={j.id}>
-                  <td className="cell-numero">{j.numero}</td>
-                  <td>{j.nom}</td>
-                  <td>
-                    <span className="poste-principal">{j.posteCle}</span>
-                    {j.autresPostes?.map((p) => (
-                      <span className="poste-secondaire" key={p}>
-                        {p}
-                      </span>
-                    ))}
-                  </td>
-                  <td className="cell-licence">
-                    {j.numeroLicence
-                      ? licencesVisibles
-                        ? j.numeroLicence
-                        : '••••••••'
-                      : '—'}
-                  </td>
+        <>
+          <div className="table-scroll roster-table">
+            <table className="postes-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Joueur·se</th>
+                  <th>Poste(s) de prédilection</th>
+                  <th>N° de licence</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {triées.map((j) => (
+                  <tr key={j.id}>
+                    <td className="cell-numero">{j.numero}</td>
+                    <td>{j.nom}</td>
+                    <td>
+                      <span className="poste-principal">{j.posteCle}</span>
+                      {j.autresPostes?.map((p) => (
+                        <span className="poste-secondaire" key={p}>
+                          {p}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="cell-licence">
+                      {j.numeroLicence
+                        ? licencesVisibles
+                          ? j.numeroLicence
+                          : '••••••••'
+                        : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="roster-cards">
+            {triées.map((j) => (
+              <div className="roster-card" key={j.id}>
+                <div className="roster-card-top">
+                  <span className="roster-card-nom">{j.nom}</span>
+                  <span className="roster-card-numero">#{j.numero}</span>
+                </div>
+                <div className="roster-card-postes">
+                  <span className="poste-pill principal">{j.posteCle}</span>
+                  {j.autresPostes?.map((p) => (
+                    <span className="poste-pill" key={p}>
+                      {p}
+                    </span>
+                  ))}
+                </div>
+                {j.numeroLicence && (
+                  <div className="roster-card-licence">
+                    Licence : {licencesVisibles ? j.numeroLicence : '••••••••'}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {triées.length === 0 && (
