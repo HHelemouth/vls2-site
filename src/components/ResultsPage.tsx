@@ -71,9 +71,11 @@ function CarteMatch({
 export default function ResultsPage({
   matches,
   onSelect,
+  onNouveauMatch,
 }: {
   matches: Match[]
   onSelect: (matchId: string) => void
+  onNouveauMatch: () => void
 }) {
   const aVenir = matches
     .filter((m) => m.sets.length === 0)
@@ -85,6 +87,12 @@ export default function ResultsPage({
 
   return (
     <div>
+      <div className="results-toolbar">
+        <button className="btn-edit" onClick={onNouveauMatch}>
+          + Nouveau match
+        </button>
+      </div>
+
       {aVenir.length > 0 && (
         <>
           <h3 className="section-label">À venir</h3>

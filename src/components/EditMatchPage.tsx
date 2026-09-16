@@ -110,9 +110,6 @@ export default function EditMatchPage({
 
   return (
     <div>
-      <button className="lien-retour" onClick={onBack}>
-        ← Retour
-      </button>
       <h2>{match ? 'Modifier le match' : 'Nouveau match'}</h2>
 
       {erreur && <p className="erreur-inline">{erreur}</p>}
@@ -233,9 +230,14 @@ export default function EditMatchPage({
         ))}
       </div>
 
-      <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
-        {enregistrement ? 'Enregistrement…' : 'Enregistrer le match'}
-      </button>
+      <div className="edit-actions">
+        <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
+          {enregistrement ? 'Enregistrement…' : 'Enregistrer le match'}
+        </button>
+        <button className="btn-cancel" onClick={onBack} disabled={enregistrement}>
+          Annuler
+        </button>
+      </div>
     </div>
   )
 }

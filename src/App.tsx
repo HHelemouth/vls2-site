@@ -4,19 +4,18 @@ import TeamPage from './components/TeamPage'
 import StatsPage from './components/StatsPage'
 import MatchDetailPage from './components/MatchDetailPage'
 import EditMatchPage from './components/EditMatchPage'
+import Modal from './components/Modal'
 import { chargerTout, écouterChangements } from './api'
 import type { CompositionSet, Joueuse, Match } from './types'
 import logo from './assets/vls2-logo.png'
 
 type Onglet = 'resultats' | 'equipe' | 'stats'
-type Vue =
-  | { type: 'liste' }
-  | { type: 'match'; matchId: string }
-  | { type: 'edition'; matchId?: string }
+type Vue = { type: 'liste' } | { type: 'match'; matchId: string }
 
 export default function App() {
   const [onglet, setOnglet] = useState<Onglet>('resultats')
   const [vue, setVue] = useState<Vue>({ type: 'liste' })
+  const [modaleMatch, setModaleMatch] = useState<{ matchId?: string } | null>(null)
 
   const [joueuses, setJoueuses] = useState<Joueuse[]>([])
   const [matches, setMatches] = useState<Match[]>([])
@@ -51,10 +50,9 @@ export default function App() {
 
   const matchSélectionné =
     vue.type === 'match' ? matches.find((m) => m.id === vue.matchId) : undefined
-  const matchEnÉdition =
-    vue.type === 'edition' && vue.matchId
-      ? matches.find((m) => m.id === vue.matchId)
-      : undefined
+  const matchEnÉdition = modaleMatch?.matchId
+    ? matches.find((m) => m.id === modaleMatch.matchId)
+    : undefined
 
   return (
     <div className="shell">
@@ -87,12 +85,6 @@ export default function App() {
         >
           Stats
         </button>
-        <button
-          className={vue.type === 'edition' && !vue.matchId ? 'active' : ''}
-          onClick={() => setVue({ type: 'edition' })}
-        >
-          + Nouveau match
-        </button>
       </nav>
 
       {chargement ? (
@@ -105,23 +97,7 @@ export default function App() {
               joueuses={joueuses}
               compositions={compositions}
               onBack={() => setVue({ type: 'liste' })}
-              onEdit={() => setVue({ type: 'edition', matchId: matchSélectionné.id })}
-            />
-          )}
-
-          {vue.type === 'edition' && (
-            <EditMatchPage
-              match={matchEnÉdition}
-              compositions={compositions}
-              joueuses={joueuses}
-              onBack={() =>
-                setVue(
-                  matchEnÉdition
-                    ? { type: 'match', matchId: matchEnÉdition.id }
-                    : { type: 'liste' },
-                )
-              }
-              onSaved={(matchId) => setVue({ type: 'match', matchId })}
+              onEdit={() => setModaleMatch({ matchId: matchSélectionné.id })}
             />
           )}
 
@@ -129,6 +105,7 @@ export default function App() {
             <ResultsPage
               matches={matches}
               onSelect={(matchId) => setVue({ type: 'match', matchId })}
+              onNouveauMatch={() => setModaleMatch({})}
             />
           )}
           {vue.type === 'liste' && onglet === 'equipe' && (
@@ -142,6 +119,21 @@ export default function App() {
             />
           )}
         </>
+      )}
+
+      {modaleMatch && (
+        <Modal onClose={() => setModaleMatch(null)}>
+          <EditMatchPage
+            match={matchEnÉdition}
+            compositions={compositions}
+            joueuses={joueuses}
+            onBack={() => setModaleMatch(null)}
+            onSaved={(matchId) => {
+              setModaleMatch(null)
+              setVue({ type: 'match', matchId })
+            }}
+          />
+        </Modal>
       )}
 
       <footer className="note">
