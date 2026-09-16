@@ -98,7 +98,7 @@ export default function CourtDiagram({
       </div>
 
       <div className="court-filet">
-        <span>Filet</span>
+        <span>Ligne des 3 mètres</span>
       </div>
 
       <div className="court-ligne">
