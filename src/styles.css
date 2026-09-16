@@ -134,6 +134,19 @@ nav.tabs button.active {
 
 /* Résultats */
 
+.section-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 2rem 0 0.9rem;
+}
+
+.section-label:first-child {
+  margin-top: 0;
+}
+
 .match-card {
   background: var(--panel);
   box-shadow: var(--card-shadow);
