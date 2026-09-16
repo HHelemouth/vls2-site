@@ -8,7 +8,7 @@ import type {
   SetScore,
 } from '../types'
 import { POSITIONS, POSTES, affectationsVides, slugify } from '../utils'
-import { sauvegarderCompositions, sauvegarderMatch } from '../api'
+import { sauvegarderCompositions, sauvegarderMatch, supprimerMatch } from '../api'
 
 export default function EditMatchPage({
   match,
@@ -16,12 +16,14 @@ export default function EditMatchPage({
   joueuses,
   onBack,
   onSaved,
+  onDeleted,
 }: {
   match?: Match
   compositions: CompositionSet[]
   joueuses: Joueuse[]
   onBack: () => void
   onSaved: (matchId: string) => void
+  onDeleted: () => void
 }) {
   const [date, setDate] = useState(match?.date ?? '')
   const [adversaire, setAdversaire] = useState(match?.adversaire ?? '')
@@ -46,6 +48,7 @@ export default function EditMatchPage({
     },
   )
   const [enregistrement, setEnregistrement] = useState(false)
+  const [suppression, setSuppression] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
 
   const matchId = match?.id ?? (date && adversaire ? `${date}-${slugify(adversaire)}` : '')
@@ -115,6 +118,24 @@ export default function EditMatchPage({
       setErreur("L'enregistrement a échoué, réessaie.")
     } finally {
       setEnregistrement(false)
+    }
+  }
+
+  async function supprimer() {
+    if (!match) return
+    const sûr = window.confirm(
+      `Supprimer définitivement le match contre ${match.adversaire} (${match.date}) ? Cette action est irréversible.`,
+    )
+    if (!sûr) return
+    setSuppression(true)
+    setErreur(null)
+    try {
+      await supprimerMatch(match.id)
+      onDeleted()
+    } catch (e) {
+      setErreur('La suppression a échoué, réessaie.')
+    } finally {
+      setSuppression(false)
     }
   }
 
@@ -247,6 +268,15 @@ export default function EditMatchPage({
         <button className="btn-cancel" onClick={onBack} disabled={enregistrement}>
           Annuler
         </button>
+        {match && (
+          <button
+            className="btn-delete"
+            onClick={supprimer}
+            disabled={suppression}
+          >
+            {suppression ? 'Suppression…' : 'Supprimer ce match'}
+          </button>
+        )}
       </div>
     </div>
   )

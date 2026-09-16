@@ -753,6 +753,7 @@ table.postes-table th {
 .edit-actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-cancel {
@@ -770,6 +771,24 @@ table.postes-table th {
 .btn-cancel:hover {
   color: var(--text);
   border-color: var(--text-muted);
+}
+
+.btn-delete {
+  background: none;
+  border: 1px solid var(--loss);
+  color: var(--loss);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  margin-left: auto;
+}
+
+.btn-delete:hover {
+  background: var(--loss);
+  color: #fff;
 }
 
 .joueuse-edit-card {
@@ -942,6 +961,12 @@ footer.note {
   .edit-actions .btn-edit,
   .edit-actions .btn-cancel {
     flex: 1;
+  }
+
+  .edit-actions .btn-delete {
+    width: 100%;
+    margin-left: 0;
+    order: 3;
   }
 
   .joueuse-edit-card {

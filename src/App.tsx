@@ -132,6 +132,10 @@ export default function App() {
               setModaleMatch(null)
               setVue({ type: 'match', matchId })
             }}
+            onDeleted={() => {
+              setModaleMatch(null)
+              setVue({ type: 'liste' })
+            }}
           />
         </Modal>
       )}

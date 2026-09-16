@@ -109,6 +109,11 @@ export async function sauvegarderMatch(match: Match) {
   if (error) throw error
 }
 
+export async function supprimerMatch(id: string) {
+  const { error } = await supabase.from('matches').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function sauvegarderCompositions(compositions: CompositionSet[]) {
   if (!compositions.length) return
   const { error } = await supabase
