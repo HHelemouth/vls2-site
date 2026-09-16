@@ -207,7 +207,7 @@ export default function EditMatchPage({
                       updateAffectation(s.numero, position, 'joueuseId', e.target.value)
                     }
                   >
-                    <option value="">— joueuse —</option>
+                    <option value="">— joueur·se —</option>
                     {joueuses.map((j) => (
                       <option key={j.id} value={j.id}>
                         {j.nom} (#{j.numero})

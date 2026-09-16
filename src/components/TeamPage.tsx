@@ -76,7 +76,8 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
       setIdsSupprimés([])
       setEnÉdition(false)
     } catch (e) {
-      setErreur("L'enregistrement a échoué, réessaie dans un instant.")
+      const détail = e instanceof Error ? e.message : String(e)
+      setErreur(`L'enregistrement a échoué : ${détail}`)
     } finally {
       setEnregistrement(false)
     }
@@ -95,18 +96,36 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
             Afficher les n° de licence
           </label>
         )}
-        <button
-          className="btn-edit btn-edit-inline"
-          onClick={() => {
-            if (!enÉdition) {
+        {!enÉdition && (
+          <button
+            className="btn-edit btn-edit-inline"
+            onClick={() => {
               setBrouillon(joueuses)
               setIdsSupprimés([])
-            }
-            setEnÉdition((v) => !v)
-          }}
-        >
-          {enÉdition ? 'Annuler' : 'Modifier'}
-        </button>
+              setEnÉdition(true)
+            }}
+          >
+            Modifier
+          </button>
+        )}
+        {enÉdition && (
+          <div className="edit-actions">
+            <button
+              className="btn-edit btn-edit-inline"
+              onClick={enregistrer}
+              disabled={enregistrement}
+            >
+              {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
+            </button>
+            <button
+              className="btn-cancel"
+              onClick={() => setEnÉdition(false)}
+              disabled={enregistrement}
+            >
+              Annuler
+            </button>
+          </div>
+        )}
       </div>
 
       {erreur && <p className="erreur-inline">{erreur}</p>}
@@ -178,15 +197,7 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
 
           <div className="edit-row">
             <button className="btn-add" onClick={ajouterJoueuse}>
-              + Ajouter une joueuse
-            </button>
-            <button
-              className="btn-edit"
-              style={{ marginBottom: 0 }}
-              onClick={enregistrer}
-              disabled={enregistrement}
-            >
-              {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
+              + Ajouter un·e joueur·se
             </button>
           </div>
         </>
@@ -195,7 +206,7 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
           <thead>
             <tr>
               <th>#</th>
-              <th>Joueuse</th>
+              <th>Joueur·se</th>
               <th>Poste(s) de prédilection</th>
               <th>N° de licence</th>
             </tr>
@@ -228,7 +239,7 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
 
       {triées.length === 0 && (
         <p style={{ color: 'var(--text-muted)' }}>
-          Aucune joueuse saisie pour l'instant.
+          Aucun·e joueur·se saisi·e pour l'instant.
         </p>
       )}
     </div>

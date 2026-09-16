@@ -58,7 +58,7 @@ export default function StatsPage({
       <table className="postes-table">
         <thead>
           <tr>
-            <th>Joueuse</th>
+            <th>Joueur·se</th>
             <th>Poste clé (saison)</th>
             <th>Changements de poste observés</th>
           </tr>
