@@ -1,16 +1,16 @@
 :root {
-  --bg: #0f242c;
-  --panel: #163540;
-  --panel-line: #274853;
-  --gold: #e7b33e;
-  --win: #4f9d69;
-  --loss: #c0483c;
-  --text: #f3f1ea;
-  --text-muted: #93aab2;
+  --bg: #221130;
+  --panel: #331d47;
+  --panel-line: #4a3163;
+  --gold: #ff6b47;
+  --win: #4fd695;
+  --loss: #ff5c7a;
+  --text: #f7f1ec;
+  --text-muted: #b6a4c7;
 
-  --font-display: 'Archivo Black', sans-serif;
-  --font-body: 'IBM Plex Sans', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-display: 'Unbounded', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'Plus Jakarta Sans', sans-serif;
 }
 
 * {
@@ -89,7 +89,7 @@ nav.tabs button.active {
 .demo-banner {
   background: var(--panel);
   border: 1px dashed var(--panel-line);
-  border-radius: 6px;
+  border-radius: 12px;
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -116,7 +116,7 @@ nav.tabs button.active {
 .match-card {
   background: var(--panel);
   border: 1px solid var(--panel-line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
   display: grid;
@@ -157,7 +157,7 @@ nav.tabs button.active {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   padding: 0.3rem 0.55rem;
-  border-radius: 4px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--panel-line);
   white-space: nowrap;
@@ -211,7 +211,7 @@ nav.tabs button.active {
   border: 1px solid var(--panel-line);
   color: var(--text);
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  border-radius: 12px;
   font-family: var(--font-body);
 }
 
@@ -227,7 +227,7 @@ nav.tabs button.active {
 .court .zone {
   background: var(--panel);
   border: 1px solid var(--panel-line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1rem;
   min-height: 110px;
   display: flex;
@@ -278,7 +278,7 @@ nav.tabs button.active {
   font-family: var(--font-body);
   font-size: 0.82rem;
   padding: 0.35rem 0.4rem;
-  border-radius: 5px;
+  border-radius: 10px;
   width: 100%;
 }
 
@@ -324,7 +324,7 @@ nav.tabs button.active {
 .stat-card {
   background: var(--panel);
   border: 1px solid var(--panel-line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1.25rem;
 }
 
@@ -413,7 +413,7 @@ table.postes-table th {
   font-family: var(--font-display);
   font-size: 1.1rem;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   border: 1px solid currentColor;
 }
 
@@ -424,7 +424,7 @@ table.postes-table th {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.85rem;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   padding: 0.5rem 0.9rem;
 }
@@ -466,7 +466,7 @@ table.postes-table th {
 .edit-section {
   background: var(--panel);
   border: 1px solid var(--panel-line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -512,7 +512,7 @@ table.postes-table th {
   border: 1px solid var(--panel-line);
   color: var(--text);
   padding: 0.5rem 0.6rem;
-  border-radius: 6px;
+  border-radius: 12px;
   font-family: var(--font-body);
 }
 
@@ -584,7 +584,7 @@ table.postes-table th {
 .json-output pre {
   background: var(--bg);
   border: 1px solid var(--panel-line);
-  border-radius: 6px;
+  border-radius: 12px;
   padding: 1rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -651,7 +651,7 @@ table.postes-table th {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.85rem;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   padding: 0.5rem 0.9rem;
 }
@@ -664,7 +664,7 @@ table.postes-table th {
 .joueuse-edit-card {
   background: var(--panel);
   border: 1px solid var(--panel-line);
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.75rem;
 }
