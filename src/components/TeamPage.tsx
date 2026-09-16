@@ -202,39 +202,41 @@ export default function TeamPage({ joueuses }: { joueuses: Joueuse[] }) {
           </div>
         </>
       ) : (
-        <table className="postes-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Joueur·se</th>
-              <th>Poste(s) de prédilection</th>
-              <th>N° de licence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {triées.map((j) => (
-              <tr key={j.id}>
-                <td className="cell-numero">{j.numero}</td>
-                <td>{j.nom}</td>
-                <td>
-                  <span className="poste-principal">{j.posteCle}</span>
-                  {j.autresPostes?.map((p) => (
-                    <span className="poste-secondaire" key={p}>
-                      {p}
-                    </span>
-                  ))}
-                </td>
-                <td className="cell-licence">
-                  {j.numeroLicence
-                    ? licencesVisibles
-                      ? j.numeroLicence
-                      : '••••••••'
-                    : '—'}
-                </td>
+        <div className="table-scroll">
+          <table className="postes-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Joueur·se</th>
+                <th>Poste(s) de prédilection</th>
+                <th>N° de licence</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {triées.map((j) => (
+                <tr key={j.id}>
+                  <td className="cell-numero">{j.numero}</td>
+                  <td>{j.nom}</td>
+                  <td>
+                    <span className="poste-principal">{j.posteCle}</span>
+                    {j.autresPostes?.map((p) => (
+                      <span className="poste-secondaire" key={p}>
+                        {p}
+                      </span>
+                    ))}
+                  </td>
+                  <td className="cell-licence">
+                    {j.numeroLicence
+                      ? licencesVisibles
+                        ? j.numeroLicence
+                        : '••••••••'
+                      : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {triées.length === 0 && (

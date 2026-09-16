@@ -55,26 +55,28 @@ export default function StatsPage({
         </div>
       </div>
 
-      <table className="postes-table">
-        <thead>
-          <tr>
-            <th>Joueur·se</th>
-            <th>Poste clé (saison)</th>
-            <th>Changements de poste observés</th>
-          </tr>
-        </thead>
-        <tbody>
-          {joueuses.map((j) => (
-            <tr key={j.id}>
-              <td>
-                {j.nom} <span style={{ color: 'var(--text-muted)' }}>#{j.numero}</span>
-              </td>
-              <td>{j.posteCle}</td>
-              <td>{changementsParJoueuse.get(j.id) ?? 0}</td>
+      <div className="table-scroll">
+        <table className="postes-table">
+          <thead>
+            <tr>
+              <th>Joueur·se</th>
+              <th>Poste clé (saison)</th>
+              <th>Changements de poste observés</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {joueuses.map((j) => (
+              <tr key={j.id}>
+                <td>
+                  {j.nom} <span style={{ color: 'var(--text-muted)' }}>#{j.numero}</span>
+                </td>
+                <td>{j.posteCle}</td>
+                <td>{changementsParJoueuse.get(j.id) ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
         Base minimale pour l'instant : victoires/défaites, taux de sets gagnés
