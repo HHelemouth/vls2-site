@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
 import CourtDiagram from './CourtDiagram'
 import { affectationsVides } from '../utils'
-import { sauvegarderCompositions, supprimerMatch } from '../api'
+import { sauvegarderCompositions, sauvegarderMatch, supprimerMatch } from '../api'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
@@ -27,6 +27,8 @@ function SetBlock({
   const [brouillon, setBrouillon] = useState<AffectationSet[]>(
     composition?.affectations ?? affectationsVides(),
   )
+  const [scoreVLS, setScoreVLS] = useState(pointsVLS)
+  const [scoreAdv, setScoreAdv] = useState(pointsAdv)
   const [enregistrement, setEnregistrement] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
 
@@ -59,10 +61,23 @@ function SetBlock({
     )
   }
 
+  function entrerÉdition() {
+    setBrouillon(composition?.affectations ?? affectationsVides())
+    setScoreVLS(pointsVLS)
+    setScoreAdv(pointsAdv)
+    setEnÉdition(true)
+  }
+
   async function enregistrer() {
     setEnregistrement(true)
     setErreur(null)
     try {
+      const sets = match.sets.map((s) =>
+        s.numero === setNumero
+          ? { ...s, pointsVLS: scoreVLS, pointsAdv: scoreAdv }
+          : s,
+      )
+      await sauvegarderMatch({ ...match, sets })
       await sauvegarderCompositions([
         { matchId: match.id, setNumero, affectations: brouillon },
       ])
@@ -88,10 +103,7 @@ function SetBlock({
         )}
         <button
           className="btn-edit btn-edit-inline btn-edit-right"
-          onClick={() => {
-            if (!enÉdition) setBrouillon(composition?.affectations ?? affectationsVides())
-            setEnÉdition((v) => !v)
-          }}
+          onClick={() => (enÉdition ? setEnÉdition(false) : entrerÉdition())}
         >
           {enÉdition ? 'Annuler' : 'Modifier'}
         </button>
@@ -101,6 +113,28 @@ function SetBlock({
 
       {enÉdition ? (
         <>
+          <div className="edit-row score-edit-row">
+            <label>
+              Score VLS 2
+              <input
+                type="number"
+                min={0}
+                value={scoreVLS}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setScoreVLS(Number(e.target.value))}
+              />
+            </label>
+            <label>
+              Score adversaire
+              <input
+                type="number"
+                min={0}
+                value={scoreAdv}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setScoreAdv(Number(e.target.value))}
+              />
+            </label>
+          </div>
           <CourtDiagram
             composition={{ matchId: match.id, setNumero, affectations: brouillon }}
             joueuses={joueuses}
@@ -185,7 +219,7 @@ export default function MatchDetailPage({
 
       <div className="edit-actions">
         <button className="btn-edit" onClick={onEdit}>
-          Modifier le score ou ajouter/retirer un set
+          Modifier les infos du match ou gérer les sets
         </button>
         <button className="btn-delete" onClick={supprimer} disabled={suppression}>
           {suppression ? 'Suppression…' : 'Supprimer ce match'}
