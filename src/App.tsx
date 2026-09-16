@@ -6,6 +6,7 @@ import MatchDetailPage from './components/MatchDetailPage'
 import EditMatchPage from './components/EditMatchPage'
 import { chargerTout, écouterChangements } from './api'
 import type { CompositionSet, Joueuse, Match } from './types'
+import logo from './assets/vls2-logo.png'
 
 type Onglet = 'resultats' | 'equipe' | 'stats'
 type Vue =
@@ -58,7 +59,10 @@ export default function App() {
   return (
     <div className="shell">
       <header className="masthead">
-        <h1>VLS 2</h1>
+        <div className="masthead-titre">
+          <img src={logo} alt="Logo VLS2" className="logo" />
+          <h1>VLS 2</h1>
+        </div>
         <span className="saison">Saison 2026/2027 — Poule CE2</span>
       </header>
 
