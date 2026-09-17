@@ -70,7 +70,7 @@ function RemplacementsEditeur({
               </select>
             </label>
             <label className="grow">
-              Sortante
+              Sortant·e
               <select
                 value={r.joueuseSortante}
                 onChange={(e) => modifier(i, 'joueuseSortante', e.target.value)}
@@ -84,7 +84,7 @@ function RemplacementsEditeur({
               </select>
             </label>
             <label className="grow">
-              Entrante
+              Entrant·e
               <select
                 value={r.joueuseEntrante}
                 onChange={(e) => modifier(i, 'joueuseEntrante', e.target.value)}
