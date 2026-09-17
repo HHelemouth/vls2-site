@@ -92,13 +92,13 @@ export default function CourtDiagram({
 
   return (
     <div className="court">
+      <div className="court-filet">
+        <span>Filet</span>
+      </div>
+
       <div className="court-ligne">
         <span className="court-ligne-label">Ligne avant</span>
         <div className="court-ligne-zones">{AVANT.map(zone)}</div>
-      </div>
-
-      <div className="court-filet">
-        <span>Ligne des 3 mètres</span>
       </div>
 
       <div className="court-ligne">
