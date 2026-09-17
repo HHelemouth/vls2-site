@@ -1,4 +1,5 @@
 import type { CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
+import { POSITIONS } from '../utils'
 
 const AVANT: PositionTerrain[] = ['P2', 'P3', 'P4']
 const ARRIÈRE: PositionTerrain[] = ['P1', 'P5', 'P6']
@@ -39,10 +40,47 @@ export default function StatsPage({
     })
   })
 
+  // Meilleures compositions de DÉPART (celles de la feuille de match) :
+  // même 6 joueur·ses aux mêmes positions de départ = même compo, peu
+  // importe les remplacements qui ont suivi en cours de set.
+  const statsParCompo = new Map<
+    string,
+    { label: string; joués: number; gagnés: number }
+  >()
+
+  compositions.forEach((comp) => {
+    const match = matches.find((m) => m.id === comp.matchId)
+    const set = match?.sets.find((s) => s.numero === comp.setNumero)
+    if (!set) return
+
+    const complet = POSITIONS.every((pos) =>
+      comp.affectations.find((a) => a.position === pos)?.joueuseId,
+    )
+    if (!complet) return
+
+    const gagné = set.pointsVLS > set.pointsAdv
+    const clé = POSITIONS.map(
+      (pos) => comp.affectations.find((a) => a.position === pos)!.joueuseId,
+    ).join('|')
+    const label = POSITIONS.map((pos) => {
+      const id = comp.affectations.find((a) => a.position === pos)!.joueuseId
+      return `${pos} ${joueuses.find((j) => j.id === id)?.nom ?? '?'}`
+    }).join(' · ')
+
+    const entrée = statsParCompo.get(clé) ?? { label, joués: 0, gagnés: 0 }
+    entrée.joués += 1
+    if (gagné) entrée.gagnés += 1
+    statsParCompo.set(clé, entrée)
+  })
+
+  const compos = Array.from(statsParCompo.values()).sort((a, b) => {
+    const tauxA = a.gagnés / a.joués
+    const tauxB = b.gagnés / b.joués
+    return tauxB - tauxA || b.joués - a.joués
+  })
+
   // Stats par ligne : qui se trouve ensemble en ligne avant (au filet) ou
   // en ligne arrière sur un set, et le taux de victoire de ce set-là.
-  // Calculé directement à partir des positions du terrain, rien à saisir
-  // en plus.
   const statsParLigne = new Map<
     string,
     { noms: string; ligne: 'Avant' | 'Arrière'; joués: number; gagnés: number }
@@ -64,7 +102,6 @@ export default function StatsPage({
 
       if (ids.length < 2) return
 
-      // Toutes les paires possibles au sein de cette ligne.
       for (let i = 0; i < ids.length; i++) {
         for (let j = i + 1; j < ids.length; j++) {
           const paire = [ids[i], ids[j]].sort()
@@ -105,28 +142,37 @@ export default function StatsPage({
         </div>
       </div>
 
-      <div className="table-scroll">
-        <table className="postes-table">
-          <thead>
-            <tr>
-              <th>Joueur·se</th>
-              <th>Poste clé (saison)</th>
-              <th>Changements de poste observés</th>
-            </tr>
-          </thead>
-          <tbody>
-            {joueuses.map((j) => (
-              <tr key={j.id}>
-                <td>
-                  {j.nom} <span style={{ color: 'var(--text-muted)' }}>#{j.numero}</span>
-                </td>
-                <td>{j.posteCle}</td>
-                <td>{changementsParJoueuse.get(j.id) ?? 0}</td>
+      <h3 className="section-label">Meilleures compositions de départ</h3>
+      {compos.length > 0 ? (
+        <div className="table-scroll">
+          <table className="postes-table compo-stats-table">
+            <thead>
+              <tr>
+                <th>Composition (P1 → P6)</th>
+                <th>Sets joués</th>
+                <th>Taux de victoire</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {compos.map((c) => (
+                <tr key={c.label}>
+                  <td className="compo-label">{c.label}</td>
+                  <td>{c.joués}</td>
+                  <td>
+                    {Math.round((c.gagnés / c.joués) * 100)}% ({c.gagnés}/{c.joués})
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+          Dès qu'un set aura sa composition de départ complète (les 6
+          positions renseignées) et un score, les compositions qui gagnent
+          le plus souvent apparaîtront ici, classées par taux de victoire.
+        </p>
+      )}
 
       <h3 className="section-label">Associations par ligne</h3>
       {lignes.length > 0 ? (
@@ -162,9 +208,35 @@ export default function StatsPage({
         </p>
       )}
 
+      <h3 className="section-label">Changements de poste</h3>
+      <div className="table-scroll">
+        <table className="postes-table">
+          <thead>
+            <tr>
+              <th>Joueur·se</th>
+              <th>Poste clé (saison)</th>
+              <th>Changements de poste observés</th>
+            </tr>
+          </thead>
+          <tbody>
+            {joueuses.map((j) => (
+              <tr key={j.id}>
+                <td>
+                  {j.nom} <span style={{ color: 'var(--text-muted)' }}>#{j.numero}</span>
+                </td>
+                <td>{j.posteCle}</td>
+                <td>{changementsParJoueuse.get(j.id) ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
-        D'autres indicateurs (efficacité par poste, séries en cours) viendront
-        une fois qu'il y aura plus de matchs réels saisis.
+        Les remplacements en cours de set (qui, quand, à quel score) sont
+        visibles sur la fiche de chaque match ; leur effet sur le score
+        viendra dans une prochaine itération, une fois qu'il y aura assez de
+        données.
       </p>
     </div>
   )

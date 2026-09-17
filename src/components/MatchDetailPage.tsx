@@ -1,11 +1,135 @@
 import { useState } from 'react'
-import type { AffectationSet, CompositionSet, Joueuse, Match, PositionTerrain } from '../types'
+import type {
+  AffectationSet,
+  CompositionSet,
+  Joueuse,
+  Match,
+  PositionTerrain,
+  Remplacement,
+} from '../types'
 import CourtDiagram from './CourtDiagram'
-import { affectationsVides } from '../utils'
+import { affectationsVides, POSITIONS } from '../utils'
 import { sauvegarderCompositions, sauvegarderMatch, supprimerMatch } from '../api'
 
 function setGagné(pointsVLS: number, pointsAdv: number) {
   return pointsVLS > pointsAdv
+}
+
+function nomJoueuse(id: string, joueuses: Joueuse[]) {
+  return joueuses.find((j) => j.id === id)?.nom ?? '?'
+}
+
+function RemplacementsEditeur({
+  remplacements,
+  joueuses,
+  onChange,
+}: {
+  remplacements: Remplacement[]
+  joueuses: Joueuse[]
+  onChange: (remplacements: Remplacement[]) => void
+}) {
+  function ajouter() {
+    onChange([
+      ...remplacements,
+      {
+        position: 'P1',
+        joueuseSortante: '',
+        joueuseEntrante: '',
+        scoreVLS: 0,
+        scoreAdv: 0,
+      },
+    ])
+  }
+
+  function retirer(index: number) {
+    onChange(remplacements.filter((_, i) => i !== index))
+  }
+
+  function modifier(index: number, champ: keyof Remplacement, valeur: string | number) {
+    onChange(
+      remplacements.map((r, i) => (i === index ? { ...r, [champ]: valeur } : r)),
+    )
+  }
+
+  return (
+    <div className="remplacements-edit">
+      {remplacements.map((r, i) => (
+        <div className="remplacement-row" key={i}>
+          <div className="edit-row">
+            <label>
+              Position
+              <select
+                value={r.position}
+                onChange={(e) => modifier(i, 'position', e.target.value)}
+              >
+                {POSITIONS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grow">
+              Sortante
+              <select
+                value={r.joueuseSortante}
+                onChange={(e) => modifier(i, 'joueuseSortante', e.target.value)}
+              >
+                <option value="">— joueur·se —</option>
+                {joueuses.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.nom}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grow">
+              Entrante
+              <select
+                value={r.joueuseEntrante}
+                onChange={(e) => modifier(i, 'joueuseEntrante', e.target.value)}
+              >
+                <option value="">— joueur·se —</option>
+                {joueuses.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.nom}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="edit-row">
+            <label>
+              Score VLS 2 à ce moment
+              <input
+                type="number"
+                min={0}
+                value={r.scoreVLS}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => modifier(i, 'scoreVLS', Number(e.target.value))}
+              />
+            </label>
+            <label>
+              Score adversaire à ce moment
+              <input
+                type="number"
+                min={0}
+                value={r.scoreAdv}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => modifier(i, 'scoreAdv', Number(e.target.value))}
+              />
+            </label>
+            <button className="btn-remove" onClick={() => retirer(i)}>
+              Retirer
+            </button>
+          </div>
+        </div>
+      ))}
+      <button className="btn-add" onClick={ajouter}>
+        + Ajouter un remplacement
+      </button>
+    </div>
+  )
 }
 
 function SetBlock({
@@ -26,6 +150,9 @@ function SetBlock({
   const [enÉdition, setEnÉdition] = useState(false)
   const [brouillon, setBrouillon] = useState<AffectationSet[]>(
     composition?.affectations ?? affectationsVides(),
+  )
+  const [remplacementsBrouillon, setRemplacementsBrouillon] = useState<Remplacement[]>(
+    composition?.remplacements ?? [],
   )
   const [scoreVLS, setScoreVLS] = useState(pointsVLS)
   const [scoreAdv, setScoreAdv] = useState(pointsAdv)
@@ -48,7 +175,6 @@ function SetBlock({
       b.map((a) => {
         if (a.position !== position) return a
         if (champ === 'joueuseId') {
-          // Pré-remplit avec le poste clé de la saison, modifiable ensuite.
           const joueuse = joueuses.find((j) => j.id === valeur)
           return {
             ...a,
@@ -63,6 +189,7 @@ function SetBlock({
 
   function entrerÉdition() {
     setBrouillon(composition?.affectations ?? affectationsVides())
+    setRemplacementsBrouillon(composition?.remplacements ?? [])
     setScoreVLS(pointsVLS)
     setScoreAdv(pointsAdv)
     setEnÉdition(true)
@@ -79,7 +206,14 @@ function SetBlock({
       )
       await sauvegarderMatch({ ...match, sets })
       await sauvegarderCompositions([
-        { matchId: match.id, setNumero, affectations: brouillon },
+        {
+          matchId: match.id,
+          setNumero,
+          affectations: brouillon,
+          remplacements: remplacementsBrouillon.filter(
+            (r) => r.joueuseSortante && r.joueuseEntrante,
+          ),
+        },
       ])
       setEnÉdition(false)
     } catch (e) {
@@ -115,7 +249,7 @@ function SetBlock({
         <>
           <div className="edit-row score-edit-row">
             <label>
-              Score VLS 2
+              Score final VLS 2
               <input
                 type="number"
                 min={0}
@@ -125,7 +259,7 @@ function SetBlock({
               />
             </label>
             <label>
-              Score adversaire
+              Score final adversaire
               <input
                 type="number"
                 min={0}
@@ -135,18 +269,42 @@ function SetBlock({
               />
             </label>
           </div>
+
+          <h4 className="lignes-titre">Composition de départ (feuille de match)</h4>
           <CourtDiagram
             composition={{ matchId: match.id, setNumero, affectations: brouillon }}
             joueuses={joueuses}
             editable
             onChangeAffectation={modifierAffectation}
           />
+
+          <h4 className="lignes-titre">Remplacements en cours de set</h4>
+          <RemplacementsEditeur
+            remplacements={remplacementsBrouillon}
+            joueuses={joueuses}
+            onChange={setRemplacementsBrouillon}
+          />
+
           <button className="btn-edit" onClick={enregistrer} disabled={enregistrement}>
             {enregistrement ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </>
       ) : (
-        <CourtDiagram composition={composition} joueuses={joueuses} />
+        <>
+          <p className="composition-titre">Composition de départ</p>
+          <CourtDiagram composition={composition} joueuses={joueuses} />
+          {composition?.remplacements && composition.remplacements.length > 0 && (
+            <div className="remplacements-affichage">
+              {composition.remplacements.map((r, i) => (
+                <div className="remplacement-pill" key={i}>
+                  À {r.scoreVLS}–{r.scoreAdv} ({r.position}) :{' '}
+                  {nomJoueuse(r.joueuseSortante, joueuses)} →{' '}
+                  {nomJoueuse(r.joueuseEntrante, joueuses)}
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

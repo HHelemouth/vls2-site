@@ -52,6 +52,7 @@ function dbToComposition(row: any): CompositionSet {
     matchId: row.match_id,
     setNumero: row.set_numero,
     affectations: row.affectations ?? [],
+    remplacements: row.remplacements ?? [],
   }
 }
 
@@ -60,6 +61,7 @@ function compositionToDb(c: CompositionSet) {
     match_id: c.matchId,
     set_numero: c.setNumero,
     affectations: c.affectations,
+    remplacements: c.remplacements ?? [],
   }
 }
 

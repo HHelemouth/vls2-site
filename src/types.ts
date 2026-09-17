@@ -44,5 +44,16 @@ export interface AffectationSet {
 export interface CompositionSet {
   matchId: string
   setNumero: number
-  affectations: AffectationSet[]
+  affectations: AffectationSet[] // composition de départ du set (feuille de match)
+  remplacements?: Remplacement[] // changements en cours de set
+}
+
+// Un changement de joueuse en cours de set, avec le score au moment où il
+// a lieu — pour repérer si un remplacement a fait basculer le set.
+export interface Remplacement {
+  position: PositionTerrain
+  joueuseSortante: string
+  joueuseEntrante: string
+  scoreVLS: number
+  scoreAdv: number
 }

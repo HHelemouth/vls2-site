@@ -872,6 +872,16 @@ footer.note {
   min-width: 480px;
 }
 
+.compo-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.compo-stats-table {
+  min-width: 620px;
+}
+
 /* Responsive */
 
 @media (max-width: 640px) {
@@ -1093,4 +1103,42 @@ footer.note {
     overflow-y: auto;
     padding: 1.5rem;
   }
+}
+
+/* Remplacements en cours de set */
+
+.composition-titre {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.75rem;
+}
+
+.remplacements-edit {
+  margin-bottom: 1.25rem;
+}
+
+.remplacement-row {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 0.85rem 1rem 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.remplacements-affichage {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.remplacement-pill {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
 }
