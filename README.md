@@ -24,7 +24,7 @@ clé prévue pour être exposée côté client chez Supabase. La sécurité repo
 sur les policies RLS, actuellement réglées en accès libre (n'importe qui
 avec le lien du site peut lire et écrire). Si l'équipe grandit ou si le
 site devient plus visible, il faudra resserrer ces policies (mot de passe
-partagé, authentification par joueuse, etc.).
+partagé, authentification par joueur·se, etc.).
 
 ## Schéma de données
 
@@ -37,8 +37,8 @@ Décrit dans `src/types.ts` :
   set joué.
 - **CompositionSet** — une entrée par set joué, avec les 6 positions du
   terrain (P1 à P6, numérotation rotation volley) et pour chacune : la
-  joueuse et le poste réellement joué ce set-là (`posteJoue`), qui peut
-  différer du `posteCle` de la joueuse.
+  joueur·se et le poste réellement joué ce set-là (`posteJoue`), qui peut
+  différer du `posteCle` du ou de la joueur·se.
 
 ## Développement local
 

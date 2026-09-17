@@ -159,13 +159,6 @@ function SetBlock({
   const [enregistrement, setEnregistrement] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
 
-  const changements = (enÉdition ? brouillon : composition?.affectations ?? []).filter(
-    (a) => {
-      const j = joueuses.find((j) => j.id === a.joueuseId)
-      return j && j.posteCle !== a.posteJoue
-    },
-  ).length
-
   function modifierAffectation(
     position: PositionTerrain,
     champ: 'joueuseId' | 'posteJoue',
@@ -230,11 +223,6 @@ function SetBlock({
         <span className={`set-pill ${setGagné(pointsVLS, pointsAdv) ? 'win' : 'loss'}`}>
           {pointsVLS}–{pointsAdv}
         </span>
-        {changements > 0 && (
-          <span className="changement-tag">
-            {changements} changement{changements > 1 ? 's' : ''} de poste
-          </span>
-        )}
         <button
           className="btn-edit btn-edit-inline btn-edit-right"
           onClick={() => (enÉdition ? setEnÉdition(false) : entrerÉdition())}
